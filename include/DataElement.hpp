@@ -16,14 +16,15 @@ class DataElementBase
       return lhs.compare(rhs); 
     }
 
-    friend bool operator!=(const DataElementBase& lhs, const DataElementBase& rhs)
-    {
-      return !(lhs == rhs);
-    }
 
   private:
     virtual bool compare(const DataElementBase& other) const = 0;
 };
+
+bool operator!=(const DataElementBase& lhs, const DataElementBase& rhs)
+{
+  return !(lhs == rhs);
+}
 
 template <typename IsoT>
 class DataElement : public DataElementBase
@@ -57,7 +58,9 @@ class DataElement : public DataElementBase
     template <typename IsoT2>
     bool operator==(const DataElement<IsoT2>& other) const
     {
-      return std::is_same<IsoT, IsoT2>::value && this->value_ == other.value_;
+      return std::is_same<IsoT, IsoT2>::value && 
+             this->type_ == other.type_  && 
+             this->value_ == other.value_;
     }
 
   private:
@@ -66,13 +69,11 @@ class DataElement : public DataElementBase
       const auto rhs = dynamic_cast<const DataElement<IsoT>*>(&other);
       if (rhs)
       {
-        return this->value_ == rhs->value_;
+        return this->type_ == rhs->type_ && this->value_ == rhs->value_;
       }
       return false;
     }
 };
-
-
 
 class DataElementComposite final : public DataElementBase
 {
