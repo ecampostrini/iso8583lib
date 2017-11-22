@@ -5,10 +5,11 @@ project(${PROJECT} CXX)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -W -Wall -Wextra -O3")
 
 ### variables ###
-set(ISOLIB_INCLUDES ${PROJECT_SOURCE_DIR}/includes)
+set(ISOLIB_INCLUDES ${PROJECT_SOURCE_DIR}/include)
+set(THIRD_PARTY_INCLUDES ${PROJECT_SOURCE_DIR}/third-party)
 
 ### includes ###
-include_directories(${ISOLIB_INCLUDES})
+include_directories(${ISOLIB_INCLUDES} ${THIRD_PARTY_INCLUDES})
 
 ### sources ###
 set(SRC_DIR "src")
@@ -24,3 +25,4 @@ set(SOURCES ${SOURCE_FILES} ${HEADER_FILES})
 
 add_library(${PROJECT} ${SOURCES})
 
+add_subdirectory(test)
