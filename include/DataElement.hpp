@@ -9,13 +9,14 @@ class DataElementBase
 {
   public:
     virtual ~DataElementBase() {};
+
     virtual std::string toString() const = 0; 
+    virtual void parse(std::istringstream& iss) = 0;
 
     friend bool operator==(const DataElementBase& lhs, const DataElementBase& rhs)
     {
       return lhs.compare(rhs); 
     }
-
 
   private:
     virtual bool compare(const DataElementBase& other) const = 0;
@@ -54,6 +55,8 @@ class DataElement : public DataElementBase
 
       value_ = value;
     }
+
+    void parse(std::istringstream& iss) override {}
     
     template <typename IsoT2>
     bool operator==(const DataElement<IsoT2>& other) const
@@ -85,6 +88,19 @@ class DataElementComposite final : public DataElementBase
     
     ~DataElementComposite() {};
 
+    std::string toString() const override
+    {
+      std::ostringstream os;
+      for(const auto& de : subElements_)
+      {
+        os << de.second->toString();
+      }
+
+      return os.str();
+    }
+
+    void parse(std::istringstream& iss) override {}
+
     DataElementComposite& add(int pos, std::unique_ptr<DataElementBase> de)
     {
       subElements_[pos] = std::move(de);
@@ -96,16 +112,7 @@ class DataElementComposite final : public DataElementBase
       return subElements_.erase(pos);
     }
 
-    std::string toString() const override
-    {
-      std::ostringstream os;
-      for(const auto& de : subElements_)
-      {
-        os << de.second->toString();
-      }
 
-      return os.str();
-    }
 
   private:
     virtual bool compare(const DataElementBase& other) const override
@@ -168,6 +175,8 @@ class AdditionalDataElement : public DataElementDecorator
 
       return ret;
     }
+
+    void parse(std::istringstream& iss) override {}
   
   private:
     bool compare(const DataElementBase& other) const override

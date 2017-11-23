@@ -16,7 +16,7 @@ struct IsoType
 
   virtual ~IsoType() {};
   
-  std::string format(const std::string value) const
+  std::string format(const std::string& value) const
   {
     validate(value);
 
