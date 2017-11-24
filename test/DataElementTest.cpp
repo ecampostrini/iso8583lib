@@ -1,5 +1,6 @@
 #include <DataElement.hpp>
 #include <IsoType.hpp>
+#include <Utils.hpp>
 
 #include <catch.hpp>
 
@@ -11,7 +12,7 @@ namespace
     explicit Alpha(size_t length, bool isVar = false) :
       IsoType(length, isVar)
     {};
-    
+
     void validate(const std::string& value) const override
     {
       if (value.size() > length_)
@@ -109,3 +110,4 @@ TEST_CASE("Test toString", "[to_string_test]")
   SECTION("toString on decorated data elements")
   {}
 }
+

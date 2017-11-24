@@ -1,4 +1,6 @@
 #include <string>
+#include <sstream>
+#include <cassert>
 
 namespace Isolib
 {
@@ -28,4 +30,5 @@ namespace Isolib
 
   std::string toBinary(uint64_t bitmap);
   std::string toHex(uint64_t bitmap);
+  std::string readVarField(std::istringstream& iss, size_t l);
 }

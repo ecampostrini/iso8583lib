@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include <map>
 #include <memory>
@@ -10,12 +10,12 @@ class DataElementBase
   public:
     virtual ~DataElementBase() {};
 
-    virtual std::string toString() const = 0; 
+    virtual std::string toString() const = 0;
     virtual void parse(std::istringstream& iss) = 0;
 
     friend bool operator==(const DataElementBase& lhs, const DataElementBase& rhs)
     {
-      return lhs.compare(rhs); 
+      return lhs.compare(rhs);
     }
 
   private:
@@ -57,12 +57,12 @@ class DataElement : public DataElementBase
     }
 
     void parse(std::istringstream& iss) override {}
-    
+
     template <typename IsoT2>
     bool operator==(const DataElement<IsoT2>& other) const
     {
-      return std::is_same<IsoT, IsoT2>::value && 
-             this->type_ == other.type_  && 
+      return std::is_same<IsoT, IsoT2>::value &&
+             this->type_ == other.type_  &&
              this->value_ == other.value_;
     }
 
@@ -85,7 +85,7 @@ class DataElementComposite final : public DataElementBase
 
   public:
     DataElementComposite() = default;
-    
+
     ~DataElementComposite() {};
 
     std::string toString() const override
@@ -121,7 +121,7 @@ class DataElementComposite final : public DataElementBase
       if (rhs)
       {
         if (this->subElements_.size() != rhs->subElements_.size())
-          return false; 
+          return false;
 
         for (const auto& de : subElements_)
         {
@@ -140,7 +140,7 @@ class DataElementComposite final : public DataElementBase
       }
 
       return false;
-    } 
+    }
 };
 
 class DataElementDecorator : public DataElementBase
@@ -153,7 +153,7 @@ class DataElementDecorator : public DataElementBase
 
     virtual std::string toString() const = 0;
 
-  private: 
+  private:
     virtual bool compare(const DataElementBase& other) const = 0;
 };
 
@@ -169,7 +169,7 @@ class AdditionalDataElement : public DataElementDecorator
 
     std::string toString() const override
     {
-      std::string ret{prefix_}; 
+      std::string ret{prefix_};
       ret += deb_->toString();
       ret += ";";
 
@@ -177,7 +177,7 @@ class AdditionalDataElement : public DataElementDecorator
     }
 
     void parse(std::istringstream& iss) override {}
-  
+
   private:
     bool compare(const DataElementBase& other) const override
     {

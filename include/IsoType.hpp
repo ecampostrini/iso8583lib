@@ -15,7 +15,7 @@ struct IsoType
   }
 
   virtual ~IsoType() {};
-  
+
   std::string format(const std::string& value) const
   {
     validate(value);
@@ -23,11 +23,11 @@ struct IsoType
     std::string ret(length_, '0');
     if (isVariable_)
     {
-      // compute the length 
+      // compute the length
     }
     else
     {
-      ret = addPadding(value); 
+      ret = addPadding(value);
     }
 
     return ret;
