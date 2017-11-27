@@ -95,4 +95,20 @@ namespace Isolib
 
     return result;
   }
+
+  // This function assumes that maxPossibleLength >= actualLength
+  std::string getVarFieldPrefix(size_t maxPossibleLength, size_t actualLength)
+  {
+    size_t digits = 0; 
+    while (maxPossibleLength > 0)
+    {
+      maxPossibleLength /= 10;
+      if (actualLength)
+        actualLength /= 10;
+      else
+        digits++;
+    }
+
+    return std::string(digits, '0');
+  }
 }

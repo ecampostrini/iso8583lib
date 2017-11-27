@@ -8,7 +8,7 @@ struct IsoType
 {
   IsoType(size_t length, bool isVariable) :
     isVariable_(isVariable),
-    length_(length)
+    maxLength_(length)
   {
     if (!isVariable_ && length <= 0)
       throw std::logic_error("The lenght of an IsoType must be positive");
@@ -20,10 +20,11 @@ struct IsoType
   {
     validate(value);
 
-    std::string ret(length_, '0');
+    std::string ret;
     if (isVariable_)
     {
-      // compute the length
+      ret = getVarFieldHeader(maxLength_, value.size()) + std::to_string(value.size());
+      ret += value; 
     }
     else
     {
@@ -42,7 +43,7 @@ struct IsoType
 
   protected:
   bool isVariable_;
-  size_t length_;
+  size_t maxLength_;
 
   private:
   virtual std::string addPadding(const std::string& value) const
@@ -53,7 +54,7 @@ struct IsoType
   virtual bool compare(const IsoType& other) const
   {
     return this->isVariable_ == other.isVariable_ &&
-           this->length_ == other.length_;
+           this->maxLength_ == other.maxLength_;
   }
 };
 

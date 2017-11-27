@@ -15,7 +15,7 @@ namespace
 
     void validate(const std::string& value) const override
     {
-      if (value.size() > length_)
+      if (value.size() > maxLength_)
         throw std::invalid_argument("Value length is larger than allowed one");
 
       static const std::regex validator{"[a-zA-Z ]+"};
@@ -30,7 +30,7 @@ namespace
       // This function assumes the length was checked by the caller
       std::string ret{value};
 
-      for (size_t i = 0; i  < length_ - value.size(); i++)
+      for (size_t i = 0; i  < maxLength_ - value.size(); i++)
       {
         ret += ' ';
       }
@@ -47,7 +47,7 @@ namespace
 
     void validate(const std::string& value) const override
     {
-      if (value.size() > length_)
+      if (value.size() > maxLength_)
         throw std::invalid_argument("Value length is larger than allowed one");
 
       static const std::regex validator{"[0-9]+"};
@@ -59,7 +59,7 @@ namespace
 
     std::string addPadding(const std::string& value) const override
     {
-      std::string ret(length_ - value.size(), '0');
+      std::string ret(maxLength_ - value.size(), '0');
       return ret.append(value.begin(), value.end());
     }
   };
