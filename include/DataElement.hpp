@@ -50,13 +50,14 @@ class DataElement : public DataElementBase
 
     void set(const std::string& value)
     {
-      if (value.length() > type_.length_)
-        throw std::invalid_argument("Trying to set value larger than allowed");
-
+      type_.validate(value);
       value_ = value;
     }
 
-    void parse(std::istringstream& iss) override {}
+    virtual void parse(std::istringstream& iss) override 
+    {
+      value_ = type_.read(iss);
+    }
 
     template <typename IsoT2>
     bool operator==(const DataElement<IsoT2>& other) const

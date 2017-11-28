@@ -1,8 +1,9 @@
 #pragma once
+
 #include <string>
 #include <regex>
 
-#include <DataElement.hpp>
+#include <Utils.hpp>
 
 struct IsoType
 {
@@ -16,22 +17,35 @@ struct IsoType
 
   virtual ~IsoType() {};
 
-  std::string format(const std::string& value) const
+  virtual std::string format(const std::string& value) const
   {
     validate(value);
 
-    std::string ret;
     if (isVariable_)
     {
-      ret = getVarFieldHeader(maxLength_, value.size()) + std::to_string(value.size());
+      const auto headerPrefixSize = Isolib::getNumberOfDigits(maxLength_) - Isolib::getNumberOfDigits(value.size());
+      std::string ret(headerPrefixSize, '0');
+      ret += std::to_string(value.size());
       ret += value; 
+
+      return ret;
     }
     else
     {
-      ret = addPadding(value);
+      return addPadding(value);
     }
+  }
 
-    return ret;
+  virtual std::string read(std::istringstream& iss) const
+  {
+    if (isVariable_)
+    {
+      return Isolib::readVarField(iss, Isolib::getNumberOfDigits(maxLength_)); 
+    }
+    else
+    {
+      return Isolib::readFixedField(iss, maxLength_);
+    }
   }
 
   virtual void validate(const std::string& value) const = 0;
@@ -39,6 +53,11 @@ struct IsoType
   friend bool operator==(const IsoType& lhs, const IsoType& rhs)
   {
     return lhs.compare(rhs);
+  }
+  
+  friend bool operator!=(const IsoType& lhs, const IsoType& rhs)
+  {
+    return !(lhs == rhs);
   }
 
   protected:
@@ -58,7 +77,4 @@ struct IsoType
   }
 };
 
-bool operator!=(const IsoType& lhs, const IsoType& rhs)
-{
-  return !(lhs == rhs);
-}
+

@@ -1,3 +1,5 @@
+#pragma once 
+
 #include <string>
 #include <sstream>
 #include <cassert>
@@ -30,6 +32,7 @@ namespace Isolib
 
   std::string toBinary(uint64_t bitmap);
   std::string toHex(uint64_t bitmap);
-  std::string readVarField(std::istringstream& iss, size_t l);
-  std::string getVarFieldPrefix(size_t maxPossibleLength, size_t actualLength);
+  std::string readFixedField(std::istringstream& iss, size_t length);
+  std::string readVarField(std::istringstream& iss, size_t headerLength);
+  size_t getNumberOfDigits(size_t number);
 }

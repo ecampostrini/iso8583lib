@@ -58,22 +58,9 @@ TEST_CASE("Test var-length field parser", "[varlength_field_parser_test]")
 
 TEST_CASE("Test var-field prefix generator", "[varlength_prefix_generator_test]")
 {
-  REQUIRE(Isolib::getVarFieldPrefix(0, 0) == "");
-  REQUIRE(Isolib::getVarFieldPrefix(1, 1) == "");
-  REQUIRE(Isolib::getVarFieldPrefix(5, 0) == "0");
-  REQUIRE(Isolib::getVarFieldPrefix(50, 0) == "00");
-  REQUIRE(Isolib::getVarFieldPrefix(50, 5) == "0");
-  REQUIRE(Isolib::getVarFieldPrefix(50, 25) == "");
-  REQUIRE(Isolib::getVarFieldPrefix(50, 50) == "");
-  REQUIRE(Isolib::getVarFieldPrefix(100, 0) == "000");
-  REQUIRE(Isolib::getVarFieldPrefix(100, 5) == "00");
-  REQUIRE(Isolib::getVarFieldPrefix(100, 50) == "0");
-  REQUIRE(Isolib::getVarFieldPrefix(100, 100) == "");
-  REQUIRE(Isolib::getVarFieldPrefix(1000, 0) == "0000");
-  REQUIRE(Isolib::getVarFieldPrefix(1000, 5) == "000");
-  REQUIRE(Isolib::getVarFieldPrefix(1000, 50) == "00");
-  REQUIRE(Isolib::getVarFieldPrefix(1000, 500) == "0");
-  REQUIRE(Isolib::getVarFieldPrefix(1000, 1000) == "");
-
-      
+  REQUIRE(Isolib::getNumberOfDigits(0) == 1);
+  REQUIRE(Isolib::getNumberOfDigits(9) == 1);
+  REQUIRE(Isolib::getNumberOfDigits(99) == 2);
+  REQUIRE(Isolib::getNumberOfDigits(999) == 3);
+  REQUIRE(Isolib::getNumberOfDigits(9999) == 4);
 }

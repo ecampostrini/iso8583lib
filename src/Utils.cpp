@@ -65,20 +65,31 @@ namespace Isolib
     return std::string{static_cast<const char*>(bitmap), 16};
   }
 
-  std::string readVarField(std::istringstream& iss, size_t l)
+  std::string readFixedField(std::istringstream& iss, size_t length)
   {
-    if (l > 4)
+    std::string result(length, ' ');
+    iss.read(&result[0], length);
+    if (!iss.good() || iss.gcount() != static_cast<std::streamsize>(length))
+    {
+      throw std::runtime_error("Error while reading field content");
+    }
+    return result; 
+  }
+
+  std::string readVarField(std::istringstream& iss, size_t headerLength)
+  {
+    if (headerLength > 4)
       throw std::invalid_argument("readVarField: length specifier is too long");
 
     char buff[4];
-    iss.read(buff, l);
-    if (!iss.good() || iss.gcount() != static_cast<std::streamsize>(l))
+    iss.read(buff, headerLength);
+    if (!iss.good() || iss.gcount() != static_cast<std::streamsize>(headerLength))
     {
       throw std::runtime_error("readVarField: error while reading length specifier");
     }
 
     size_t length = 0;
-    for(size_t i = 0; i < l; i++)
+    for(size_t i = 0; i < headerLength; i++)
     {
       const int digit = buff[i] - '0';
       if (digit < 0 || digit > 9)
@@ -86,29 +97,19 @@ namespace Isolib
       length = (length * 10) + digit;
     }
 
-    std::string result(length, ' ');
-    iss.read(&result[0], length);
-    if (!iss.good() || iss.gcount() != static_cast<std::streamsize>(length))
-    {
-      throw std::runtime_error("readVarField: error while reading the field");
-    }
-
-    return result;
+    return readFixedField(iss, length);
   }
 
-  // This function assumes that maxPossibleLength >= actualLength
-  std::string getVarFieldPrefix(size_t maxPossibleLength, size_t actualLength)
-  {
-    size_t digits = 0; 
-    while (maxPossibleLength > 0)
-    {
-      maxPossibleLength /= 10;
-      if (actualLength)
-        actualLength /= 10;
-      else
-        digits++;
-    }
 
-    return std::string(digits, '0');
+  size_t getNumberOfDigits(size_t number)
+  {
+    size_t digits = 1;
+
+    while (number /= 10)
+    {
+      digits++;
+    } 
+
+    return digits;
   }
 }
