@@ -1,7 +1,8 @@
+#include <catch.hpp>
+#include <iostream>
+
 #include <Utils.hpp>
 
-#include <iostream>
-#include <catch.hpp>
 
 TEST_CASE("Test var-length field parser", "[varlength_field_parser_test]")
 {

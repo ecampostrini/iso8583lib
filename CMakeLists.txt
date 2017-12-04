@@ -26,3 +26,4 @@ set(SOURCES ${SOURCE_FILES} ${HEADER_FILES})
 add_library(${PROJECT} ${SOURCES})
 
 add_subdirectory(test)
+add_subdirectory(examples)

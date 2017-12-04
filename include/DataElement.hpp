@@ -11,6 +11,7 @@ class DataElementBase
     virtual ~DataElementBase() {};
 
     virtual std::string toString() const = 0;
+    virtual void set(const std::string& value) = 0;
     virtual void parse(std::istringstream& iss) = 0;
 
     friend bool operator==(const DataElementBase& lhs, const DataElementBase& rhs)
@@ -18,14 +19,14 @@ class DataElementBase
       return lhs.compare(rhs);
     }
 
+    friend bool operator!=(const DataElementBase& lhs, const DataElementBase& rhs)
+    {
+      return !(lhs == rhs);
+    }
+
   private:
     virtual bool compare(const DataElementBase& other) const = 0;
 };
-
-bool operator!=(const DataElementBase& lhs, const DataElementBase& rhs)
-{
-  return !(lhs == rhs);
-}
 
 template <typename IsoT>
 class DataElement : public DataElementBase
@@ -38,6 +39,8 @@ class DataElement : public DataElementBase
     IsoT type_;
 
   public:
+    DataElement(IsoT t): type_(t) {};
+
     DataElement(const std::string& value, IsoT t):
       value_(value),
       type_(t)
@@ -48,7 +51,7 @@ class DataElement : public DataElementBase
       return type_.format(value_);
     }
 
-    void set(const std::string& value)
+    void set(const std::string& value) override
     {
       type_.validate(value);
       value_ = value;
@@ -98,6 +101,12 @@ class DataElementComposite final : public DataElementBase
       }
 
       return os.str();
+    }
+
+    [[noreturn]]
+    void set(const std::string& value [[gnu::unused]]) override
+    {
+      throw std::runtime_error("set cannot be called on a Composite Data Element");
     }
 
     void parse(std::istringstream& iss) override {}
@@ -152,8 +161,6 @@ class DataElementDecorator : public DataElementBase
     DataElementDecorator(std::unique_ptr<DataElementBase> deb) : deb_(std::move(deb))
     {};
 
-    virtual std::string toString() const = 0;
-
   private:
     virtual bool compare(const DataElementBase& other) const = 0;
 };
@@ -175,6 +182,12 @@ class AdditionalDataElement : public DataElementDecorator
       ret += ";";
 
       return ret;
+    }
+
+    [[noreturn]]
+    void set(const std::string& value [[gnu::unused]]) override
+    {
+      throw std::runtime_error("set cannot be called on an Addition Data Element");
     }
 
     void parse(std::istringstream& iss) override {}

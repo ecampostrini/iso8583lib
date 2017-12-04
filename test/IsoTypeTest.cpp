@@ -1,45 +1,11 @@
-#include <IsoType.hpp>
-
-#include <iostream>
 #include <catch.hpp>
+#include <iostream>
+
+#include <IsoType.hpp>
+#include <IsoTypeExample.hpp>
 
 using Catch::Matchers::EndsWith;
-
-namespace 
-{
-  // Custom IsoTypes to be used during the testing
-  struct Alpha final: public IsoType
-  {
-    explicit Alpha(size_t length, bool isVar = false) :
-      IsoType(length, isVar)
-    {};
-
-    void validate(const std::string& value) const override
-    {
-      if (value.size() > maxLength_)
-        throw std::invalid_argument("Value length is larger than allowed one");
-
-      static const std::regex validator{"[a-zA-Z ]+"};
-      if (!std::regex_match(value, validator))
-        throw std::invalid_argument("Invalid alpha value");
-    }
-
-    private:
-
-    std::string addPadding(const std::string& value) const override
-    {
-      // This function assumes the length was checked by the caller
-      std::string ret{value};
-
-      for (size_t i = 0; i  < maxLength_ - value.size(); i++)
-      {
-        ret += ' ';
-      }
-
-      return ret;
-    }
-  };
-}
+using namespace IsoLib::Example;
 
 TEST_CASE("Test format", "[format_test]")
 {
