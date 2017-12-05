@@ -5,7 +5,8 @@
 #include <IsoTypeExample.hpp>
 #include <Utils.hpp>
 
-using namespace IsoLib::Example;
+using namespace isolib::example;
+using namespace isolib;
 
 using DebPtr = std::unique_ptr<DataElementBase>;
 

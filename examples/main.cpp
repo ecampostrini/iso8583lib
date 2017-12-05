@@ -2,7 +2,7 @@
 
 #include <DataElementFactory.hpp>
 
-using namespace IsoLib::Example;
+using namespace isolib::example;
 
 int main()
 {

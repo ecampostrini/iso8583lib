@@ -5,7 +5,7 @@
 #include <IsoTypeExample.hpp>
 
 using Catch::Matchers::EndsWith;
-using namespace IsoLib::Example;
+using namespace isolib::example;
 
 TEST_CASE("Test format", "[format_test]")
 {

@@ -4,7 +4,7 @@
 #include <sstream>
 #include <cassert>
 
-namespace Isolib
+namespace isolib
 {
   template <typename T>
   T set(size_t i, T target)

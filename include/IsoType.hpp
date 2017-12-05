@@ -5,76 +5,80 @@
 
 #include <Utils.hpp>
 
-struct IsoType
+namespace isolib
 {
-  IsoType(size_t length, bool isVariable) :
-    isVariable_(isVariable),
-    maxLength_(length)
+  struct IsoType
   {
-    if (!isVariable_ && length <= 0)
-      throw std::logic_error("The lenght of an IsoType must be positive");
-  }
+    protected:
+      bool isVariable_;
+      size_t maxLength_;
 
-  virtual ~IsoType() {};
+    public:
+      IsoType(size_t length, bool isVariable) :
+        isVariable_(isVariable),
+        maxLength_(length)
+      {
+        if (!isVariable_ && length <= 0)
+          throw std::logic_error("The lenght of an IsoType must be positive");
+      }
 
-  virtual std::string format(const std::string& value) const
-  {
-    validate(value);
+      virtual ~IsoType() {};
 
-    if (isVariable_)
-    {
-      const auto headerPrefixSize = Isolib::getNumberOfDigits(maxLength_) - Isolib::getNumberOfDigits(value.size());
-      std::string ret(headerPrefixSize, '0');
-      ret += std::to_string(value.size());
-      ret += value; 
+      virtual std::string format(const std::string& value) const
+      {
+        validate(value);
 
-      return ret;
-    }
-    else
-    {
-      return addPadding(value);
-    }
-  }
+        if (isVariable_)
+        {
+          const auto headerPrefixSize = getNumberOfDigits(maxLength_) - getNumberOfDigits(value.size());
+          std::string ret(headerPrefixSize, '0');
+          ret += std::to_string(value.size());
+          ret += value; 
 
-  virtual std::string read(std::istringstream& iss) const
-  {
-    if (isVariable_)
-    {
-      return Isolib::readVarField(iss, Isolib::getNumberOfDigits(maxLength_)); 
-    }
-    else
-    {
-      return Isolib::readFixedField(iss, maxLength_);
-    }
-  }
+          return ret;
+        }
+        else
+        {
+          return addPadding(value);
+        }
+      }
 
-  virtual void validate(const std::string& value) const = 0;
+      virtual std::string read(std::istringstream& iss) const
+      {
+        if (isVariable_)
+        {
+          return readVarField(iss, getNumberOfDigits(maxLength_)); 
+        }
+        else
+        {
+          return readFixedField(iss, maxLength_);
+        }
+      }
 
-  friend bool operator==(const IsoType& lhs, const IsoType& rhs)
-  {
-    return lhs.compare(rhs);
-  }
-  
-  friend bool operator!=(const IsoType& lhs, const IsoType& rhs)
-  {
-    return !(lhs == rhs);
-  }
+      virtual void validate(const std::string& value) const = 0;
 
-  protected:
-  bool isVariable_;
-  size_t maxLength_;
+      friend bool operator==(const IsoType& lhs, const IsoType& rhs)
+      {
+        return lhs.compare(rhs);
+      }
+      
+      friend bool operator!=(const IsoType& lhs, const IsoType& rhs)
+      {
+        return !(lhs == rhs);
+      }
 
-  private:
-  virtual std::string addPadding(const std::string& value) const
-  {
-    return value;
-  }
+    private:
+      virtual std::string addPadding(const std::string& value) const
+      {
+        return value;
+      }
 
-  virtual bool compare(const IsoType& other) const
-  {
-    return this->isVariable_ == other.isVariable_ &&
-           this->maxLength_ == other.maxLength_;
-  }
-};
+      virtual bool compare(const IsoType& other) const
+      {
+        return this->isVariable_ == other.isVariable_ &&
+               this->maxLength_ == other.maxLength_;
+      }
+  };
+}
 
 

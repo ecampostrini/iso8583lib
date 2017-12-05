@@ -16,9 +16,9 @@
  * of an example.
  */
 
-namespace IsoLib
+namespace isolib
 {
-  namespace Example
+  namespace example
   {
     using CreationMap = std::map<std::string, std::function<std::unique_ptr<DataElementBase>(void)>>;
 

@@ -6,7 +6,8 @@
 #include <DataElementFactory.hpp>
 #include <IsoTypeExample.hpp>
 
-using namespace IsoLib::Example;
+using namespace isolib;
+using namespace isolib::example;
 
 namespace
 {

@@ -13,7 +13,7 @@ namespace
 
 }
 
-namespace Isolib
+namespace isolib
 {
   std::string toBinary(uint64_t bits)
   {
@@ -99,7 +99,6 @@ namespace Isolib
 
     return readFixedField(iss, length);
   }
-
 
   size_t getNumberOfDigits(size_t number)
   {
