@@ -25,53 +25,57 @@ namespace isolib
 {
   namespace example
   {
+    //CREATE_ISOTYPE("Alpha", "[a-zA-Z0-9 ]+", alignLeft, ' ');
+    //CREATE_ISOTYPE("Numeric", "[0-9]", alignRight, '0');
+    //CREATE_ISOTYPE("Hexa", "[0-9abcdefABCDEF]", identity, '\0');
+
     // Custom IsoTypes to be used in testing/examples
     struct Alpha final: public IsoType
     {
       public:
-        explicit Alpha(size_t length, bool isVar = false) :
-          IsoType(length, isVar)
-        {};
+      explicit Alpha(size_t length, bool isVar = false) :
+        IsoType(length, isVar)
+      {};
 
-        void validate(const std::string& value) const override
-        {
-          if (value.size() > maxLength_)
-            throw std::invalid_argument("Value length is larger than allowed one");
+      void validate(const std::string& value) const override
+      {
+        if (value.size() > maxLength_)
+          throw std::invalid_argument("Value length is larger than allowed one");
 
-          static const std::regex validator{"[a-zA-Z0-9 ]+"};
-          if (!std::regex_match(value, validator))
-            throw std::invalid_argument("Invalid alpha value");
-        }
+        static const std::regex validator{"[a-zA-Z0-9 ]+"};
+        if (!std::regex_match(value, validator))
+          throw std::invalid_argument("Invalid alpha value");
+      }
 
       private:
-        std::string addPadding(const std::string& value) const override
-        {
-          return alignRight(value, maxLength_);
-        }
+      std::string addPadding(const std::string& value) const override
+      {
+        return alignRight(value, maxLength_);
+      }
     };
 
     struct Numeric final: public IsoType
     {
       public:
-        explicit Numeric(size_t length, bool isVar = false) :
-          IsoType(length, isVar)
-        {};
+      explicit Numeric(size_t length, bool isVar = false) :
+        IsoType(length, isVar)
+      {};
 
-        void validate(const std::string& value) const override
-        {
-          if (value.size() > maxLength_)
-            throw std::invalid_argument("Value length is larger than allowed one");
+      void validate(const std::string& value) const override
+      {
+        if (value.size() > maxLength_)
+          throw std::invalid_argument("Value length is larger than allowed one");
 
-          static const std::regex validator{"[0-9]+"};
-          if (!std::regex_match(value, validator))
-            throw std::invalid_argument("Invalid numeric value");
-        }
+        static const std::regex validator{"[0-9]+"};
+        if (!std::regex_match(value, validator))
+          throw std::invalid_argument("Invalid numeric value");
+      }
 
       private:
-        std::string addPadding(const std::string& value) const override
-        {
-          return alignLeft(value, maxLength_, '0');
-        }
+      std::string addPadding(const std::string& value) const override
+      {
+        return alignLeft(value, maxLength_, '0');
+      }
     };
   }
 }
