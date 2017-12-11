@@ -1,8 +1,9 @@
+#include <algorithm>
 #include <map>
 #include <iostream>
 #include <memory>
 #include <string>
-#include <ostringstream>
+#include <sstream>
 
 #include <DataElement.hpp>
 #include <IsoType.hpp>
@@ -32,30 +33,45 @@
   }
 
 */
+namespace
+{
+  void validateMessageType(const std::string& mt)
+  {
+    if (mt.size() != 4)
+      throw std::runtime_error("Message type has wrong length, should be 4");
+    auto allDigits = std::all_of(mt.begin(), mt.end(), [](const char& c) {return c >= '0' && c <= '9';});
+    if (!allDigits)
+      throw std::runtime_error("Message type can only contain digits");
+  }
+}
 namespace isolib
 {
-  template <typename DataElementFactory, size_t N = 2>
+  template <typename DataElementFactory>
   class IsoMessage
   {
-    //template <size_t N>
-    //struct Bitmap
-    //{
-      //private:
-      //std::array<int64_t, N> bitmaps;
-    //}
     public:
-    IsoMessage(int messageType, bool binBitmap = false) :
-      _messageType(messageType),
-      _binaryBitmap(binBitmap)
-    {}
+    enum class BitmapType { Binary, Hex };
 
-    void set(size_t pos, std::unique_ptr<DataElementBase>&& de)
+    public:
+    IsoMessage(const std::string& messageType, bool binBitmap = false) :
+      _binaryBitmap(binBitmap)
     {
-      if (pos < 2 || pos > 128)
-        throw std::invalid_argument("Field index must be between 2 and 128");   
+      validateMessageType(messageType);
+      strncpy(_messageType, messageType.data(), 4);
     }
 
-    std::string get(size_t pos)
+    void setField(size_t pos, std::unique_ptr<DataElementBase>&& de)
+    {
+      if (pos < 2 || pos > 128)
+        throw std::invalid_argument("Field index must be between 2 and 128");
+
+      _fields[pos] = std::move(de);
+      set(pos % 64, _bitmaps[pos/64]);
+      if (pos >= 64)
+        set(1, _bitmaps[0]);
+    }
+
+    std::string getField(size_t pos) const
     {
       if (pos < 2 || pos > 128)
       {
@@ -63,32 +79,67 @@ namespace isolib
       }
 
       const auto it = _fields.find(pos);
-      if (pos == std::end(_fields))
+      if (it == std::end(_fields))
         throw std::invalid_argument("Field is not present " + std::to_string(pos));
 
       return it->second->toString();
     }
 
-    void write(std::ostringstream& oss) const
+    std::string write() const
     {
-    
+      std::ostringstream oss;
+
+      // Message type
+      oss << _messageType;
+      // Bitmap(s)
+      oss << (_binaryBitmap ? toBinary(_bitmaps[0]) : toHex(_bitmaps[0]));
+      if (_bitmaps[1])
+        oss << (_binaryBitmap ? toBinary(_bitmaps[1]) : toHex(_bitmaps[1]));
+      // Data elements
+      for (const auto& kv : _fields)
+      {
+        oss << kv.second->toString();
+      }
+
+      return oss.str();
     }
 
+    // TODO implement some validation for the message type
     void read(const std::string& in)
     {
-       
+      std::istringstream iss{in};
+      auto readBitmap = [&]() -> int64_t {
+        if (_binaryBitmap)
+          return 0; //fromBinary(readFixedField(iss, 8));
+        else
+          return 0; //fromHex(readFixedField(iss, 16));
+      };
+
+      strncpy(_messageType, readFixedField(iss, 4).data(), 4);
+      _bitmaps[0] = readBitmap();
+      auto firstBit = get(1, _bitmaps[0]);
+      if (firstBit)
+      {
+        _bitmaps[1] = readBitmap();
+      }
+
+      for (auto i = 2; i < 64 + firstBit*64; i++)
+      {
+        if (!get(i, _bitmaps[i / 64]))
+          continue;
+
+        // TODO introduce a data element name policy by means of an extra
+        // template argument, e.g.: NamePolicy::getName(i)
+        auto debPtr = DataElementFactory::create("DE" + std::to_string(i));
+        debPtr->parse(iss);
+        _fields[i] = std::move(debPtr);
+      }
     }
 
-    std::string get() const
-    {
-    
-    }
-
-    private: 
-    int _messageType;
+    private:
+    char  _messageType[4];
     bool _binaryBitmap;
     std::array<int64_t, 2> _bitmaps;
-    //Bitmap _bitmap;
     std::map<int, std::unique_ptr<DataElementBase>> _fields;
   };
 }

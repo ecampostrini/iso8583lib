@@ -14,21 +14,21 @@ namespace
   using DebPtr = std::unique_ptr<DataElementBase>;
 
   
-  std::unique_ptr<DataElement<Alpha>> makeDe1()
+  std::unique_ptr<DataElement<Alpha>> makeDe5()
   {
     std::unique_ptr<DataElement<Alpha>> ret;
     ret.reset(new DataElement<Alpha>{Alpha(20)});
     return ret;
   }
 
-  std::unique_ptr<DataElement<Alpha>> makeDe2()
+  std::unique_ptr<DataElement<Alpha>> makeDe50()
   {
     std::unique_ptr<DataElement<Alpha>> ret;
     ret.reset(new DataElement<Alpha>{Alpha(10)});
     return ret;
   }
 
-  std::unique_ptr<DataElement<Numeric>> makeDe3()
+  std::unique_ptr<DataElement<Numeric>> makeDe94()
   {
     std::unique_ptr<DataElement<Numeric>> ret;
     ret.reset(new DataElement<Numeric>{Numeric(10)});
@@ -37,9 +37,9 @@ namespace
 }
 
 const CreationMap ExampleFactory::creationMap_ = CreationMap{
-  {"DE1", makeDe1},
-  {"DE2", makeDe2},
-  {"DE3", makeDe3},
+  {"DE5", makeDe5},
+  {"DE50", makeDe50},
+  {"DE94", makeDe94},
 };
 
 std::unique_ptr<DataElementBase> ExampleFactory::createDataElement(const std::string& id)
