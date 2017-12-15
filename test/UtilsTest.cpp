@@ -3,6 +3,8 @@
 
 #include <Utils.hpp>
 
+using namespace isolib;
+
 TEST_CASE("Test var-length field parser", "[varlength_field_parser_test]")
 {
   std::istringstream iss;
@@ -63,4 +65,49 @@ TEST_CASE("Test var-field prefix generator", "[varlength_prefix_generator_test]"
   REQUIRE(isolib::getNumberOfDigits(99) == 2);
   REQUIRE(isolib::getNumberOfDigits(999) == 3);
   REQUIRE(isolib::getNumberOfDigits(9999) == 4);
+}
+
+TEST_CASE("Test bitmap utility functions", "[bitmap_utility_function_test]")
+{
+  SECTION("Test to{hex, binary}")
+  {}
+
+  SECTION("Test from{hex, binary}")
+  {}
+
+  SECTION("Test set/get}")
+  {
+    {
+      uint8_t i8{0};
+      i8 = set(1, i8);
+      REQUIRE(toHex(i8) == std::string("80"));
+      i8 = set(1, i8);
+      REQUIRE(toHex(i8) == std::string("80"));
+      i8 = set(2, i8);
+      REQUIRE(toHex(i8) == std::string("C0"));
+      i8 = set(8, i8);
+      REQUIRE(toHex(i8) == std::string("C1"));
+    }
+    {
+      uint32_t i32{0};
+      i32 = set(1, i32);
+      REQUIRE(toHex(i32) == std::string("80000000"));
+      i32 = set(32, i32);
+      REQUIRE(toHex(i32) == std::string("80000001"));
+      i32 = set(17, i32);
+      REQUIRE(toHex(i32) == std::string("80008001"));
+    }
+    {
+      uint64_t i64{0};
+      i64 = set(1, i64);
+      REQUIRE(toHex(i64) == std::string("8000000000000000"));
+      i64 = set(33, i64);
+      REQUIRE(toHex(i64) == std::string("8000000080000000"));
+      i64 = set(34, i64);
+      REQUIRE(toHex(i64) == std::string("80000000C0000000"));
+      i64 = set(64, i64);
+      REQUIRE(toHex(i64) == std::string("80000000C0000001"));
+    }
+  }
+
 }

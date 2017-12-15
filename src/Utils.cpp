@@ -6,13 +6,6 @@
 
 #include <Utils.hpp>
 
-namespace
-{
-
-  static const char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
-}
-
 namespace isolib
 {
   std::string toBinary(uint64_t bits)
@@ -37,34 +30,6 @@ namespace isolib
     return std::string{reinterpret_cast<const char*>(bitmap), 8};
   }
 
-  std::string toHex(uint64_t bits)
-  {
-    char bitmap[16] = {0};
-    auto pos = 1;
-    auto currentChar = 0;
-    uint8_t acc = 0;
-
-    for (size_t i = 1; i <= sizeof(uint64_t) * 8; i++)
-    {
-      if (get(i, bits))
-      {
-        acc = set(pos + 4, acc);
-      }
-
-      pos++;
-
-      if (pos > 4)
-      {
-        bitmap[currentChar] = hexChars[acc];
-        currentChar++;
-        pos = 1;
-        acc = 0;
-      }
-    }
-
-    return std::string{static_cast<const char*>(bitmap), 16};
-  }
-
   std::string readFixedField(std::istringstream& iss, size_t length)
   {
     std::string result(length, ' ');
@@ -73,7 +38,7 @@ namespace isolib
     {
       throw std::runtime_error("Error while reading field content");
     }
-    return result; 
+    return result;
   }
 
   std::string readVarField(std::istringstream& iss, size_t headerLength)
@@ -107,7 +72,7 @@ namespace isolib
     while (number /= 10)
     {
       digits++;
-    } 
+    }
 
     return digits;
   }

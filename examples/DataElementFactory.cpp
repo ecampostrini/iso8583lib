@@ -34,12 +34,20 @@ namespace
     ret.reset(new DataElement<Numeric>{Numeric(10)});
     return ret;
   }
+
+  std::unique_ptr<DataElement<Alpha>> makeDe64()
+  {
+    std::unique_ptr<DataElement<Alpha>> ret;
+    ret.reset(new DataElement<Alpha>{Alpha(30)});
+    return ret;
+  }
 }
 
 const CreationMap ExampleFactory::creationMap_ = CreationMap{
   {"DE5", makeDe5},
   {"DE50", makeDe50},
   {"DE94", makeDe94},
+  {"DE64", makeDe64}
 };
 
 std::unique_ptr<DataElementBase> ExampleFactory::createDataElement(const std::string& id)

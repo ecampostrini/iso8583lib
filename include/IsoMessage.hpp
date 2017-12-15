@@ -33,7 +33,7 @@
   }
 
 */
-namespace
+namespace // isolib::detail
 {
   void validateMessageType(const std::string& mt)
   {
@@ -44,17 +44,18 @@ namespace
       throw std::runtime_error("Message type can only contain digits");
   }
 }
+
 namespace isolib
 {
   template <typename DataElementFactory>
   class IsoMessage
   {
     public:
-    enum class BitmapType { Binary, Hex };
+    enum class BitmapType : char { Binary, Hex };
 
     public:
-    IsoMessage(const std::string& messageType, bool binBitmap = false) :
-      _binaryBitmap(binBitmap)
+    IsoMessage(const std::string& messageType, BitmapType binBitmap = BitmapType::Hex) :
+      _bitmapType(binBitmap)
     {
       validateMessageType(messageType);
       strncpy(_messageType, messageType.data(), 4);
@@ -66,7 +67,7 @@ namespace isolib
         throw std::invalid_argument("Field index must be between 2 and 128");
 
       _fields[pos] = std::move(de);
-      set(pos % 64, _bitmaps[pos/64]);
+      set(pos % 64 + 1, _bitmaps[pos/64]);
       if (pos >= 64)
         set(1, _bitmaps[0]);
     }
@@ -88,14 +89,17 @@ namespace isolib
     std::string write() const
     {
       std::ostringstream oss;
+      auto writeBitmap = [&](int pos) -> void {
+        if (_bitmapType == BitmapType::Binary)
+          oss << toBinary(_bitmaps[pos]);
+        else
+          oss << toHex(_bitmaps[pos]);
+      };
 
-      // Message type
       oss << _messageType;
-      // Bitmap(s)
-      oss << (_binaryBitmap ? toBinary(_bitmaps[0]) : toHex(_bitmaps[0]));
+      writeBitmap(0);
       if (_bitmaps[1])
-        oss << (_binaryBitmap ? toBinary(_bitmaps[1]) : toHex(_bitmaps[1]));
-      // Data elements
+        writeBitmap(1);
       for (const auto& kv : _fields)
       {
         oss << kv.second->toString();
@@ -109,7 +113,7 @@ namespace isolib
     {
       std::istringstream iss{in};
       auto readBitmap = [&]() -> int64_t {
-        if (_binaryBitmap)
+        if (_bitmapType == BitmapType::Binary)
           return 0; //fromBinary(readFixedField(iss, 8));
         else
           return 0; //fromHex(readFixedField(iss, 16));
@@ -138,7 +142,7 @@ namespace isolib
 
     private:
     char  _messageType[4];
-    bool _binaryBitmap;
+    BitmapType _bitmapType;
     std::array<int64_t, 2> _bitmaps;
     std::map<int, std::unique_ptr<DataElementBase>> _fields;
   };
