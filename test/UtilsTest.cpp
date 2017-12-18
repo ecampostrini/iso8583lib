@@ -4,6 +4,7 @@
 #include <Utils.hpp>
 
 using namespace isolib;
+using Catch::Matchers::Contains;
 
 TEST_CASE("Test var-length field parser", "[varlength_field_parser_test]")
 {
@@ -69,11 +70,52 @@ TEST_CASE("Test var-field prefix generator", "[varlength_prefix_generator_test]"
 
 TEST_CASE("Test bitmap utility functions", "[bitmap_utility_function_test]")
 {
-  SECTION("Test to{hex, binary}")
-  {}
-
   SECTION("Test from{hex, binary}")
-  {}
+  {
+    {
+      unsigned char x[16] = {0xCA, 0xFE, 0xBA, 0xBE, 0xCA, 0xFE, 0xBA, 0xBE, 0x00};
+      REQUIRE(fromBinary<uint8_t>(std::string(reinterpret_cast<const char*>(x), 1)) == 0xCA);
+      REQUIRE(fromBinary<uint16_t>(std::string(reinterpret_cast<const char*>(x), 2)) == 0xCAFE);
+      REQUIRE(fromBinary<uint32_t>(std::string(reinterpret_cast<const char*>(x), 4)) == 0xCAFEBABE);
+      REQUIRE(fromBinary<uint64_t>(std::string(reinterpret_cast<const char*>(x), 8)) == 0xCAFEBABECAFEBABE);
+      REQUIRE_THROWS_WITH(fromBinary<uint8_t>(std::string(reinterpret_cast<const char*>(x), 2)) == 0xCA,
+        Contains("Number of chars on the input cannot be larger than the size in bytes of the return type"));
+      REQUIRE_THROWS_WITH(fromBinary<uint16_t>(std::string(reinterpret_cast<const char*>(x), 3)) == 0xCA,
+        Contains("Number of chars on the input cannot be larger than the size in bytes of the return type"));
+      REQUIRE_THROWS_WITH(fromBinary<uint32_t>(std::string(reinterpret_cast<const char*>(x), 5)) == 0xCA,
+        Contains("Number of chars on the input cannot be larger than the size in bytes of the return type"));
+      REQUIRE_THROWS_WITH(fromBinary<uint32_t>(std::string(reinterpret_cast<const char*>(x), 9)) == 0xCA,
+        Contains("Number of chars on the input cannot be larger than the size in bytes of the return type"));
+    }
+    {
+      std::string in("CaFeBaBeCaFeBaBe");
+      REQUIRE(fromHex<uint8_t>(in.substr(0, 2)) == 0xCA);
+      REQUIRE(fromHex<uint16_t>(in.substr(0, 4)) == 0xCAFE);
+      REQUIRE(fromHex<uint32_t>(in.substr(0, 8)) == 0xCAFEBABE);
+      REQUIRE(fromHex<uint64_t>(in.substr(0, 16)) == 0xCAFEBABECAFEBABE);
+    }
+  }
+
+  SECTION("Test to{hex, binary}")
+  {
+    {
+      uint8_t x{0xFE};
+      REQUIRE(toHex(x) == "FE");
+    }
+    {
+      uint16_t x{0xCAFE};
+      REQUIRE(toHex(x) == "CAFE");
+    }
+    {
+      uint32_t x{0xCAFEBABE};
+      REQUIRE(toHex(x) == "CAFEBABE");
+    }
+    {
+      uint64_t x{0x12DDCAFEBABEDD45};
+      REQUIRE(toHex(x) == "12DDCAFEBABEDD45");
+    }
+  }
+
 
   SECTION("Test set/get}")
   {
@@ -109,5 +151,4 @@ TEST_CASE("Test bitmap utility functions", "[bitmap_utility_function_test]")
       REQUIRE(toHex(i64) == std::string("80000000C0000001"));
     }
   }
-
 }

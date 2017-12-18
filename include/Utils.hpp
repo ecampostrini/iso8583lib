@@ -8,6 +8,12 @@
 
 namespace isolib
 {
+  int fromHex(char c);
+  std::string toBinary(uint64_t bitmap);
+  std::string readFixedField(std::istringstream& iss, size_t length);
+  std::string readVarField(std::istringstream& iss, size_t headerLength);
+  size_t getNumberOfDigits(size_t number);
+
   namespace detail
   {
     const char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
@@ -86,8 +92,43 @@ namespace isolib
     return std::string{static_cast<const char*>(result), numChars};
   }
 
-  std::string toBinary(uint64_t bitmap);
-  std::string readFixedField(std::istringstream& iss, size_t length);
-  std::string readVarField(std::istringstream& iss, size_t headerLength);
-  size_t getNumberOfDigits(size_t number);
+  template <typename T>
+  T fromBinary(const std::string& in)
+  {
+    static_assert(std::is_unsigned<T>::value, "The return value has to be unsigned integral");
+
+    if (sizeof(T) < in.size())
+      throw std::invalid_argument("Number of chars on the input cannot be larger than the size in bytes of the return type");
+
+    T ret{0};
+    const char* input = in.data();
+    for (size_t i = 0; i < in.size(); i++)
+    {
+      ret = ret << 8;
+      ret = ret | static_cast<uint8_t>(input[i]);
+    }
+
+    return ret;
+  }
+
+  template <typename T>
+  T fromHex(const std::string& in)
+  {
+    static_assert(std::is_unsigned<T>::value, "The return value has to be unsigned integral");
+    if (sizeof(T) < in.size() / 2)
+      throw std::invalid_argument("Number of hex chars on the input cannot be larger than the size in bytes of the return type");
+    if (in.size() % 2)
+      throw std::invalid_argument("Hex string has to have an even length");
+    if(in.find_first_not_of("1234567890ABCDEFabcdef") != std::string::npos)
+      throw std::invalid_argument("Input contains invalid characters");
+
+    T ret{0};
+    const char* input = in.data();
+    for (size_t i = 0; i < in.size(); i++)
+    {
+      ret = ret << 4;
+      ret = ret | fromHex(input[i]);
+    }
+    return ret;
+  }
 }
