@@ -9,7 +9,6 @@
 namespace isolib
 {
   int fromHex(char c);
-  std::string toBinary(uint64_t bitmap);
   std::string readFixedField(std::istringstream& iss, size_t length);
   std::string readVarField(std::istringstream& iss, size_t headerLength);
   size_t getNumberOfDigits(size_t number);
@@ -80,7 +79,7 @@ namespace isolib
     static_assert(std::is_integral<T>::value, "The target has to be integral");
 
     constexpr const size_t numChars = (sizeof(T) * 8) / 4;
-    char result[numChars];
+    unsigned char result[numChars];
     size_t currentChar = 0;
 
     for (int i = numChars - 1; i >= 0; i--)
@@ -89,26 +88,24 @@ namespace isolib
       result[currentChar++] = detail::hexChars[acc];
     }
 
-    return std::string{static_cast<const char*>(result), numChars};
+    return std::string(reinterpret_cast<const char*>(result), numChars);
   }
 
   template <typename T>
-  T fromBinary(const std::string& in)
+  std::string toBinary(T target)
   {
-    static_assert(std::is_unsigned<T>::value, "The return value has to be unsigned integral");
+    static_assert(std::is_unsigned<T>::value, "The target has to be unsigned integral");
+    constexpr const size_t numChars = sizeof(T);
+    unsigned char result[numChars];
+    size_t currentChar = numChars - 1;
 
-    if (sizeof(T) < in.size())
-      throw std::invalid_argument("Number of chars on the input cannot be larger than the size in bytes of the return type");
-
-    T ret{0};
-    const char* input = in.data();
-    for (size_t i = 0; i < in.size(); i++)
+    for (size_t i = 0; i < numChars; i++)
     {
-      ret = ret << 8;
-      ret = ret | static_cast<uint8_t>(input[i]);
+      result[currentChar--] = target & 0xFF;
+      target >>= 8;
     }
 
-    return ret;
+    return std::string(reinterpret_cast<const char*>(result), numChars);
   }
 
   template <typename T>
@@ -129,6 +126,25 @@ namespace isolib
       ret = ret << 4;
       ret = ret | fromHex(input[i]);
     }
+    return ret;
+  }
+
+  template <typename T>
+  T fromBinary(const std::string& in)
+  {
+    static_assert(std::is_unsigned<T>::value, "The return value has to be unsigned integral");
+
+    if (sizeof(T) < in.size())
+      throw std::invalid_argument("Number of chars on the input cannot be larger than the size in bytes of the return type");
+
+    T ret{0};
+    const char* input = in.data();
+    for (size_t i = 0; i < in.size(); i++)
+    {
+      ret = ret << 8;
+      ret = ret | static_cast<uint8_t>(input[i]);
+    }
+
     return ret;
   }
 }

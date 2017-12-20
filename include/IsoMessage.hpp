@@ -143,7 +143,7 @@ namespace isolib
     private:
     char  _messageType[4];
     BitmapType _bitmapType;
-    std::array<int64_t, 2> _bitmaps;
+    std::array<uint64_t, 2> _bitmaps;
     std::map<int, std::unique_ptr<DataElementBase>> _fields;
   };
 }

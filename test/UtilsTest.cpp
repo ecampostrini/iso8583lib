@@ -73,7 +73,14 @@ TEST_CASE("Test bitmap utility functions", "[bitmap_utility_function_test]")
   SECTION("Test from{hex, binary}")
   {
     {
-      unsigned char x[16] = {0xCA, 0xFE, 0xBA, 0xBE, 0xCA, 0xFE, 0xBA, 0xBE, 0x00};
+      std::string in("CaFeBaBeCaFeBaBe");
+      REQUIRE(fromHex<uint8_t>(in.substr(0, 2)) == 0xCA);
+      REQUIRE(fromHex<uint16_t>(in.substr(0, 4)) == 0xCAFE);
+      REQUIRE(fromHex<uint32_t>(in.substr(0, 8)) == 0xCAFEBABE);
+      REQUIRE(fromHex<uint64_t>(in.substr(0, 16)) == 0xCAFEBABECAFEBABE);
+    }
+    {
+      unsigned char x[9] = {0xCA, 0xFE, 0xBA, 0xBE, 0xCA, 0xFE, 0xBA, 0xBE, 0x00};
       REQUIRE(fromBinary<uint8_t>(std::string(reinterpret_cast<const char*>(x), 1)) == 0xCA);
       REQUIRE(fromBinary<uint16_t>(std::string(reinterpret_cast<const char*>(x), 2)) == 0xCAFE);
       REQUIRE(fromBinary<uint32_t>(std::string(reinterpret_cast<const char*>(x), 4)) == 0xCAFEBABE);
@@ -84,15 +91,8 @@ TEST_CASE("Test bitmap utility functions", "[bitmap_utility_function_test]")
         Contains("Number of chars on the input cannot be larger than the size in bytes of the return type"));
       REQUIRE_THROWS_WITH(fromBinary<uint32_t>(std::string(reinterpret_cast<const char*>(x), 5)) == 0xCA,
         Contains("Number of chars on the input cannot be larger than the size in bytes of the return type"));
-      REQUIRE_THROWS_WITH(fromBinary<uint32_t>(std::string(reinterpret_cast<const char*>(x), 9)) == 0xCA,
+      REQUIRE_THROWS_WITH(fromBinary<uint64_t>(std::string(reinterpret_cast<const char*>(x), 9)) == 0xCA,
         Contains("Number of chars on the input cannot be larger than the size in bytes of the return type"));
-    }
-    {
-      std::string in("CaFeBaBeCaFeBaBe");
-      REQUIRE(fromHex<uint8_t>(in.substr(0, 2)) == 0xCA);
-      REQUIRE(fromHex<uint16_t>(in.substr(0, 4)) == 0xCAFE);
-      REQUIRE(fromHex<uint32_t>(in.substr(0, 8)) == 0xCAFEBABE);
-      REQUIRE(fromHex<uint64_t>(in.substr(0, 16)) == 0xCAFEBABECAFEBABE);
     }
   }
 
@@ -114,8 +114,24 @@ TEST_CASE("Test bitmap utility functions", "[bitmap_utility_function_test]")
       uint64_t x{0x12DDCAFEBABEDD45};
       REQUIRE(toHex(x) == "12DDCAFEBABEDD45");
     }
+    {
+      // We already 'trust' fromBinary at this point
+      uint8_t x{0xCA};
+      REQUIRE(fromBinary<uint8_t>(toBinary(x)) == 0xCA);
+    }
+    {
+      uint16_t x{0xCAFE};
+      REQUIRE(fromBinary<uint16_t>(toBinary(x)) == 0xCAFE);
+    }
+    {
+      uint32_t x{0xCAFEBABE};
+      REQUIRE(fromBinary<uint32_t>(toBinary(x)) == 0xCAFEBABE);
+    }
+    {
+      uint64_t x{0xCAFEBABECAFEBABE};
+      REQUIRE(fromBinary<uint64_t>(toBinary(x)) == 0xCAFEBABECAFEBABE);
+    }
   }
-
 
   SECTION("Test set/get}")
   {
