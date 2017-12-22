@@ -38,15 +38,15 @@ int main()
     dep94->set("10");
     dep64->set("armando estebanquito");
 
-    IsoMessage<ExampleFactory> message("0100");//, BitmapType::Binary);
+    IsoMessage<ExampleFactory> message("0100", BitmapType::Hex);
     message.setField(5, std::move(dep5));
     message.setField(50, std::move(dep50));
     message.setField(94, std::move(dep94));
     message.setField(64, std::move(dep64));
 
     std::string rawMsg = message.write();
-    std::cout << "Message 1:\n" << rawMsg << std::endl;
-    IsoMessage<ExampleFactory> message2("0100");//, BitmapType::Binary);
+    std::cerr << "Message 1:\n" << rawMsg << std::endl;
+    IsoMessage<ExampleFactory> message2("0100", BitmapType::Hex);
     message2.read(rawMsg);
     std::cout << "Message2:\n" << message2.write() << std::endl;
     //message2 = message; // Compiler error

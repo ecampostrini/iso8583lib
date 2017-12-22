@@ -79,14 +79,14 @@ namespace isolib
   {
     static_assert(std::is_integral<T>::value, "The target has to be integral");
 
-    constexpr const size_t numChars = (sizeof(T) * 8) / 4;
+    constexpr const size_t numChars = sizeof(T) * 2;
     unsigned char result[numChars];
-    size_t currentChar = 0;
+    size_t currentChar = numChars - 1;
 
-    for (int i = numChars - 1; i >= 0; i--)
+    for (size_t i = 0; i < numChars; i++)
     {
-      const uint8_t acc = (target & (static_cast<T>(0xF) << 4 * i)) >> 4 * i;
-      result[currentChar++] = detail::hexChars[acc];
+      result[currentChar--] = detail::hexChars[target & 0xF];
+      target >>= 4;
     }
 
     return std::string(reinterpret_cast<const char*>(result), numChars);

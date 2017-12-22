@@ -69,7 +69,7 @@ namespace isolib
           oss << toHex(_bitmaps[pos]);
       };
 
-      oss << _messageType;
+      oss.write(_messageType, 4);
       writeBitmap(0);
       if (_bitmaps[1])
         writeBitmap(1);
@@ -81,7 +81,6 @@ namespace isolib
       return oss.str();
     }
 
-    // TODO implement some validation for the message type
     // Right now it only works with at most 2 bitmaps
     void read(const std::string& in)
     {
@@ -120,7 +119,7 @@ namespace isolib
     }
 
     private:
-    char  _messageType[4];
+    char _messageType[4];
     BitmapType _bitmapType;
     std::array<uint64_t, 2> _bitmaps{{0, 0}};
     std::map<int, std::unique_ptr<DataElementBase>> _fields;
