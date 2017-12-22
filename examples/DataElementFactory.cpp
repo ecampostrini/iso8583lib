@@ -50,7 +50,7 @@ const CreationMap ExampleFactory::creationMap_ = CreationMap{
   {"DE64", makeDe64}
 };
 
-std::unique_ptr<DataElementBase> ExampleFactory::createDataElement(const std::string& id)
+std::unique_ptr<DataElementBase> ExampleFactory::create(const std::string& id)
 {
   const auto& it = creationMap_.find(id);
 

@@ -12,6 +12,7 @@ namespace isolib
   std::string readFixedField(std::istringstream& iss, size_t length);
   std::string readVarField(std::istringstream& iss, size_t headerLength);
   size_t getNumberOfDigits(size_t number);
+  void validateMessageType(const std::string& mt);
 
   namespace detail
   {

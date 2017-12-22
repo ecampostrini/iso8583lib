@@ -27,7 +27,7 @@ namespace isolib
       private:
         static const CreationMap creationMap_;
       public:
-        static std::unique_ptr<DataElementBase> createDataElement(const std::string& id);
+        static std::unique_ptr<DataElementBase> create(const std::string& id);
     };
   }
 }

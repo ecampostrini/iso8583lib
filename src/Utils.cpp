@@ -1,8 +1,8 @@
-#include <iostream>
-
+#include <algorithm>
 #include <cassert>
-#include <string>
+#include <iostream>
 #include <sstream>
+#include <string>
 
 #include <Utils.hpp>
 
@@ -100,5 +100,14 @@ namespace isolib
     }
 
     return digits;
+  }
+
+  void validateMessageType(const std::string& mt)
+  {
+    if (mt.size() != 4)
+      throw std::runtime_error("Message type has wrong length, should be 4");
+    auto allDigits = std::all_of(mt.begin(), mt.end(), [](const char& c) {return c >= '0' && c <= '9';});
+    if (!allDigits)
+      throw std::runtime_error("Message type can only contain digits");
   }
 }
