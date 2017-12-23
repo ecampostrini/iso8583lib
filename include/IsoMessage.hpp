@@ -89,10 +89,7 @@ namespace isolib
         if (_bitmapType == BitmapType::Binary)
           _bitmaps[bitmapNum] = fromBinary<uint64_t>(readFixedField(iss, 8));
         else
-        {
-          auto content = readFixedField(iss, 16);
-          _bitmaps[bitmapNum] = fromHex<uint64_t>(content);
-        }
+          _bitmaps[bitmapNum] = fromHex<uint64_t>(readFixedField(iss, 16));
       };
 
       auto createFromBitmap = [&, this](size_t bitmapNum) -> void {
