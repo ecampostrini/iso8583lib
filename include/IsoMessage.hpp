@@ -6,9 +6,9 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#include <cstring>
 
 #include <DataElement.hpp>
-#include <IsoType.hpp>
 #include <Utils.hpp>
 
 namespace isolib

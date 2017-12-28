@@ -8,6 +8,8 @@
 
 namespace isolib
 {
+  enum class PaddingType : char { Left, Right };
+
   int fromHex(char c);
   std::string readFixedField(std::istringstream& iss, size_t length);
   std::string readVarField(std::istringstream& iss, size_t headerLength);

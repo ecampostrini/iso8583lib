@@ -4,7 +4,7 @@
 
 #include <DataElement.hpp>
 #include <DataElementFactory.hpp>
-#include <IsoTypeExample.hpp>
+#include <IsoType.hpp>
 
 using namespace isolib;
 using namespace isolib::example;
@@ -13,32 +13,36 @@ namespace
 {
   using DebPtr = std::unique_ptr<DataElementBase>;
 
-  
-  std::unique_ptr<DataElement<Alpha>> makeDe5()
+
+  std::unique_ptr<DataElement<Numeric>> makeDe5()
   {
-    std::unique_ptr<DataElement<Alpha>> ret;
-    ret.reset(new DataElement<Alpha>{Alpha(20)});
+    std::unique_ptr<DataElement<Numeric>> ret;
+    ret.reset(new DataElement<Numeric>(LengthType::Fixed, 10));
+    ret->setName("DE5");
     return ret;
   }
 
   std::unique_ptr<DataElement<Alpha>> makeDe50()
   {
     std::unique_ptr<DataElement<Alpha>> ret;
-    ret.reset(new DataElement<Alpha>{Alpha(10)});
+    ret.reset(new DataElement<Alpha>(LengthType::Fixed, 10));
+    ret->setName("DE50");
     return ret;
   }
 
   std::unique_ptr<DataElement<Numeric>> makeDe94()
   {
     std::unique_ptr<DataElement<Numeric>> ret;
-    ret.reset(new DataElement<Numeric>{Numeric(10)});
+    ret.reset(new DataElement<Numeric>(LengthType::Fixed, 10));
+    ret->setName("DE94");
     return ret;
   }
 
   std::unique_ptr<DataElement<Alpha>> makeDe64()
   {
     std::unique_ptr<DataElement<Alpha>> ret;
-    ret.reset(new DataElement<Alpha>{Alpha(30)});
+    ret.reset(new DataElement<Alpha>(LengthType::Variable, 30));
+    ret->setName("DE64");
     return ret;
   }
 }

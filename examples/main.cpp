@@ -13,10 +13,10 @@ int main()
     auto dep50 = ExampleFactory::create("DE50");
     auto dep94 = ExampleFactory::create("DE94");
     auto dep64 = ExampleFactory::create("DE64");
-    dep5->set("125");
-    dep50->set("esteban");
-    dep94->set("10");
-    dep64->set("armando estebanquito");
+    dep5->setValue("125");
+    dep50->setValue("esteban");
+    dep94->setValue("10");
+    dep64->setValue("armando estebanquito");
 
     IsoMessage<ExampleFactory> message("0100");
     message.setField(5, std::move(dep5));
@@ -32,10 +32,10 @@ int main()
     auto dep50 = ExampleFactory::create("DE50");
     auto dep94 = ExampleFactory::create("DE94");
     auto dep64 = ExampleFactory::create("DE64");
-    dep5->set("125");
-    dep50->set("esteban");
-    dep94->set("10");
-    dep64->set("armando estebanquito");
+    dep5->setValue("125");
+    dep50->setValue("esteban");
+    dep94->setValue("10");
+    dep64->setValue("armando estebanquito");
 
     IsoMessage<ExampleFactory> msg1("0100", BitmapType::Hex);
     msg1.setField(5, std::move(dep5));

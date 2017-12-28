@@ -24,12 +24,6 @@ namespace isolib
           return ret;
         }
 
-        [[noreturn]]
-        void set(const std::string& value [[gnu::unused]]) override
-        {
-          throw std::runtime_error("set cannot be called on an Addition Data Element");
-        }
-
         void parse(std::istringstream& iss) override {}
 
       private:
