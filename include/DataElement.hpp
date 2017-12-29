@@ -212,7 +212,7 @@ namespace isolib
       return *this;
     }
 
-    size_t remove(int pos)
+    size_t erase(int pos)
     {
       return _children.erase(pos);
     }

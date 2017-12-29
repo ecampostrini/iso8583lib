@@ -5,11 +5,9 @@
 #include <stdexcept>
 
 #include <Utils.hpp>
-#include <Types.hpp>
 
-// TODO sanitize str before including it in the exception message
 #define MAKE_ISO_TYPE(tName, pType, pChar, pattern) \
-struct  tName \
+struct tName \
 { \
   static constexpr auto padType = (pType); \
   static constexpr auto padChar = (pChar); \
