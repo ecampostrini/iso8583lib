@@ -24,7 +24,10 @@ addons:
     packages:
       - clang-3.6
 
+env:
+  - CC=clang-3.6
+  - CXX=clang++-3.6
+
 install: true
 
 script: mkdir build && cd build && cmake .. && make && ./test/isolib_test
-

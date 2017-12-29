@@ -1,4 +1,4 @@
-# Isolib
+# Iso8583lib [![Build Status](https://travis-ci.org/ecampostrini/iso8583lib.svg?branch=travis-config)](https://travis-ci.org/ecampostrini/iso8583lib)
 C++ library to work with Iso8583 messages. Since I didn't find many "generic" solutions in C++ I decided 
 to give it a shot and try to implement one.
 
