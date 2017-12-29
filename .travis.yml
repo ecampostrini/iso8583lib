@@ -14,7 +14,7 @@ compiler:
 
 branches:
   only:
-    -master
+    - master
 
 addons:
   apt:
