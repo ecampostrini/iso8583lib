@@ -1,4 +1,5 @@
 #include <catch.hpp>
+#include <memory>
 
 #include <DataElement.hpp>
 #include <IsoType.hpp>
@@ -8,7 +9,7 @@ using namespace isolib;
 
 using DebPtr = std::unique_ptr<DataElementBase>;
 
-TEST_CASE("New Test equality" , "[equality_test]")
+TEST_CASE("Test equality" , "[equality_test]")
 {
     SECTION("Equality on simple data elements")
     {
@@ -23,38 +24,52 @@ TEST_CASE("New Test equality" , "[equality_test]")
     }
 
     SECTION("Equality on composite data elements")
-    {}
+    {
+    }
 
     SECTION("Equality on decorated data elements")
     {}
 }
 
-TEST_CASE("NewTest toString", "[to_string_test]")
+TEST_CASE("Test toString", "[to_string_test]")
 {
-  // An alpha data element fully occupied
-  auto de1 = DataElement<Alpha>("hello world", LengthType::Fixed, 11);
-  // A numeric data element with padding
-  auto de2 = DataElement<Numeric>("12345", LengthType::Fixed, 11);
-  // An alpha data element with padding
-  auto de3 = DataElement<Alpha>("hello", LengthType::Fixed, 10);
+  std::string name{"Armando Estebanquito"};
+  std::string countryName{"Argentina"};
+  std::string postCode{"3240"};
+  std::string address{"Pedro Goyena"};
+  std::string phoneNumber{"00543455421234"};
 
-  SECTION("toString on simple data elements")
+  SECTION("Data Elements")
   {
-    REQUIRE(de1.toString() == "hello world");
-    REQUIRE(de2.toString() == "00000012345");
-    REQUIRE(de3.toString() == "hello     ");
+    REQUIRE(DataElement<Alpha>(name, LengthType::Fixed, name.size()).toString() == name);
+    REQUIRE(DataElement<Alpha>(name, LengthType::Fixed, name.size() + 5).toString() == name + "     ");
+    REQUIRE(DataElement<Alpha>(name, LengthType::Variable, name.size()).toString() == std::to_string(name.size()).append(name));
+    REQUIRE(DataElement<Alpha>(name, LengthType::Variable, name.size() + 5).toString() == std::to_string(name.size()).append(name));
+
+    REQUIRE(DataElement<Numeric>(postCode, LengthType::Fixed, postCode.size()).toString() == postCode);
+    REQUIRE(DataElement<Numeric>(postCode, LengthType::Fixed, postCode.size() + 3).toString() == std::string{"000"}.append(postCode));
+    REQUIRE(DataElement<Numeric>(postCode, LengthType::Variable, postCode.size()).toString() == std::to_string(postCode.size()).append(postCode));
+    REQUIRE(DataElement<Numeric>(postCode, LengthType::Variable, postCode.size() + 5).toString() == std::to_string(postCode.size()).append(postCode));
   }
 
-  SECTION("toString on composite data elements")
-  {}
+  SECTION("Composite data elements")
+  {
+    auto sellerContactInfo = std::make_unique<DataElementComposite>("Seller_contact_info");
+    sellerContactInfo->add(1, std::make_unique<DataElement<Alpha>>(countryName, LengthType::Fixed, countryName.size()));
+    sellerContactInfo->add(2, std::make_unique<DataElement<AlphaNumeric>>(address, LengthType::Fixed, address.size() + 5));
+    sellerContactInfo->add(3, std::make_unique<DataElement<Numeric>>(postCode, LengthType::Fixed, postCode.size() + 3));
+    sellerContactInfo->add(4, std::make_unique<DataElement<AlphaNumeric>>(phoneNumber, LengthType::Variable, phoneNumber.size() + 5));
 
-  SECTION("toString on decorated data elements")
-  {}
-}
+    DataElementComposite sellerInfo;
+    sellerInfo.add(1, std::make_unique<DataElement<Alpha>>(name, LengthType::Fixed, name.size() + 10));
+    sellerInfo.add(2, std::move(sellerContactInfo));
+  
+    const std::string expected = name + std::string(10, ' ') +
+                                 countryName +
+                                 address + std::string(5, ' ') + 
+                                 std::string(3, '0') + postCode +
+                                 std::to_string(phoneNumber.size()) + phoneNumber;
 
-
-TEST_CASE("New data elements", "[new_data_elements]")
-{
-  DataElement<Numeric> de1(LengthType::Fixed, 10);
-  de1.setValue("1231231");
+    REQUIRE(sellerInfo.toString() == expected);
+  }
 }

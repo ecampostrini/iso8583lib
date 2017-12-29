@@ -7,6 +7,8 @@
 
 #include <Utils.hpp>
 
+#define UNUSED(expr) do { (void)(expr); } while (0)
+
 namespace isolib
 {
   constexpr size_t MaxAllowedDataElementLength = 999;
@@ -161,6 +163,7 @@ namespace isolib
 
       return false;
     }
+
   private:
     std::string _value;
     LengthType _lengthType;
@@ -181,7 +184,7 @@ namespace isolib
     std::string toString() const override
     {
       std::ostringstream os;
-      for(const auto& de : subElements_)
+      for(const auto& de : _children)
       {
         os << de.second->toString();
       }
@@ -191,36 +194,43 @@ namespace isolib
 
     void setValue(const std::string& newVal) override
     {
-      std::istringstream iss{newVal};
-      this->parse(iss);
+      UNUSED(newVal);
+      throw std::runtime_error("Composite data element " + getName() + " does not support setValue operation");
     }
 
-    void parse(std::istringstream& iss) override {}
+    void parse(std::istringstream& iss) override
+    {
+      for (auto& child : _children)
+      {
+        child.second->parse(iss);
+      }
+    }
 
     DataElementComposite& add(int pos, std::unique_ptr<DataElementBase> de)
     {
-      subElements_[pos] = std::move(de);
+      _children[pos] = std::move(de);
       return *this;
     }
 
     size_t remove(int pos)
     {
-      return subElements_.erase(pos);
+      return _children.erase(pos);
     }
+
   private:
     virtual bool compare(const DataElementBase& other) const override
     {
       const auto rhs = dynamic_cast<const DataElementComposite*>(&other);
       if (rhs)
       {
-        if (this->subElements_.size() != rhs->subElements_.size())
+        if (this->_children.size() != rhs->_children.size())
           return false;
 
-        for (const auto& de : subElements_)
+        for (const auto& de : _children)
         {
           try
           {
-            if (*de.second != *rhs->subElements_.at(de.first))
+            if (*de.second != *rhs->_children.at(de.first))
               return false;
           }
           catch(std::out_of_range& e)
@@ -234,21 +244,33 @@ namespace isolib
 
       return false;
     }
+
   private:
-    std::map<int, std::unique_ptr<DataElementBase>> subElements_;
+    std::map<int, std::unique_ptr<DataElementBase>> _children;
   };
 
   class DataElementDecorator : public DataElementBase
   {
   public:
-    DataElementDecorator(std::unique_ptr<DataElementBase> deb) :
-      deb_(std::move(deb))
+    DataElementDecorator(std::unique_ptr<DataElementBase>&& deb, const std::string& name = "_unnamed_"):
+      DataElementBase(name),
+      _child(std::move(deb))
+    {}
+
+    virtual ~DataElementDecorator() {}
+
+    virtual void setValue(const std::string& newVal) override
     {
-      setName(deb->getName());
-    };
-  private:
-    virtual bool compare(const DataElementBase& other) const = 0;
+      try
+      {
+        _child->setValue(newVal);
+      }
+      catch(const std::exception& e)
+      {
+        throw std::runtime_error("During setValue call on decorated data element " + getName() + ": " + e.what());
+      }
+    }
   protected:
-    std::unique_ptr<DataElementBase> deb_;
+    std::unique_ptr<DataElementBase> _child;
   };
 }
