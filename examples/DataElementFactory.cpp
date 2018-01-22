@@ -13,45 +13,120 @@ namespace
 {
   using DebPtr = std::unique_ptr<DataElementBase>;
 
-
-  std::unique_ptr<DataElement<Numeric>> makeDe5()
+  std::unique_ptr<DataElement<Numeric>> makeDe2()
   {
-    std::unique_ptr<DataElement<Numeric>> ret;
-    ret.reset(new DataElement<Numeric>(LengthType::Fixed, 10));
-    ret->setName("DE5");
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 19);
+    ret->setName("PrimaryAccountNumber");
     return ret;
   }
 
-  std::unique_ptr<DataElement<Alpha>> makeDe50()
+  std::unique_ptr<DataElement<Numeric>> makeDe3()
   {
-    std::unique_ptr<DataElement<Alpha>> ret;
-    ret.reset(new DataElement<Alpha>(LengthType::Fixed, 10));
-    ret->setName("DE50");
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 6);
+    ret->setName("ProcessingCode");
     return ret;
   }
 
-  std::unique_ptr<DataElement<Numeric>> makeDe94()
+  std::unique_ptr<DataElement<Numeric>> makeDe4()
   {
-    std::unique_ptr<DataElement<Numeric>> ret;
-    ret.reset(new DataElement<Numeric>(LengthType::Fixed, 10));
-    ret->setName("DE94");
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 10);
+    ret->setName("AmountTransaction");
     return ret;
   }
 
-  std::unique_ptr<DataElement<Alpha>> makeDe64()
+  std::unique_ptr<DataElement<Numeric>> makeDe6()
   {
-    std::unique_ptr<DataElement<Alpha>> ret;
-    ret.reset(new DataElement<Alpha>(LengthType::Variable, 30));
-    ret->setName("DE64");
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 10);
+    ret->setName("AmountCardHolderBilling");
+    return ret;
+  }
+
+  std::unique_ptr<DataElement<DateTime>> makeDe7()
+  {
+    auto ret = std::make_unique<DataElement<DateTime>>(LengthType::Fixed, 19);
+    ret->setName("TransmissionDateTime");
+    return ret;
+  }
+
+  std::unique_ptr<DataElement<Numeric>> makeDe8()
+  {
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 10);
+    ret->setName("AmountCardHolderBillingFee");
+    return ret;
+  }
+
+  std::unique_ptr<DataElement<Numeric>> makeDe11()
+  {
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 6);
+    ret->setName("SystemTraceAuditNumber");
+    return ret;
+  }
+
+  std::unique_ptr<DataElement<Time>> makeDe12()
+  {
+    auto ret = std::make_unique<DataElement<Time>>(LengthType::Fixed, 8);
+    ret->setName("TimeLocalTransaction");
+    return ret;
+  }
+
+  std::unique_ptr<DataElement<Date>> makeDe13()
+  {
+    auto ret = std::make_unique<DataElement<Date>>(LengthType::Fixed, 10);
+    ret->setName("DateLocalTransaction");
+    return ret;
+  }
+
+  std::unique_ptr<DataElement<Numeric>> makeDe18()
+  {
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 4);
+    ret->setName("MerchantType");
+    return ret;
+  }
+
+  std::unique_ptr<DataElement<Numeric>> makeDe22()
+  {
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 3);
+    ret->setName("PosEntryMode");
+    return ret;
+  }
+
+  std::unique_ptr<DataElement<Numeric>> makeDe41()
+  {
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 8);
+    ret->setName("TerminalId");
+    return ret;
+  }
+
+  std::unique_ptr<DataElement<Numeric>> makeDe42()
+  {
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 7);
+    ret->setName("MerchantId");
+    return ret;
+  }
+
+  std::unique_ptr<DataElement<Numeric>> makeDe43()
+  {
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 3);
+    ret->setName("Currency");
     return ret;
   }
 }
 
 const CreationMap ExampleFactory::creationMap_ = CreationMap{
-  {"DE5", makeDe5},
-  {"DE50", makeDe50},
-  {"DE94", makeDe94},
-  {"DE64", makeDe64}
+  {"DE2", makeDe2},
+  {"DE3", makeDe3},
+  {"DE4", makeDe4},
+  {"DE6", makeDe6},
+  {"DE7", makeDe7},
+  {"DE8", makeDe8},
+  {"DE11", makeDe11},
+  {"DE12", makeDe12},
+  {"DE13", makeDe13},
+  {"DE18", makeDe18},
+  {"DE22", makeDe22},
+  {"DE41", makeDe41},
+  {"DE42", makeDe42},
+  {"DE43", makeDe43},
 };
 
 std::unique_ptr<DataElementBase> ExampleFactory::create(const std::string& id)

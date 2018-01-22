@@ -118,6 +118,8 @@ namespace isolib
             return ret + _value;
           case PaddingType::Right:
             return _value + ret;
+          case PaddingType::None:
+            return _value;
           default:
             throw std::runtime_error("IsoType of data element " + getName() + " has invalid padding type");
         }
