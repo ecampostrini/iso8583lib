@@ -15,7 +15,7 @@ namespace
 
   std::unique_ptr<DataElement<Numeric>> makeDe2()
   {
-    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 19);
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 16);
     ret->setName("PrimaryAccountNumber");
     return ret;
   }

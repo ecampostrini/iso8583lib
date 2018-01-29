@@ -8,54 +8,43 @@ using namespace isolib::example;
 
 int main()
 {
-  // TODO rewrite according to the data elements defined by the factory
+  IsoMessage<ExampleFactory> msg1("1100"); //
+  try
   {
-    //auto dep5 = ExampleFactory::create("DE5");
-    //auto dep50 = ExampleFactory::create("DE50");
-    //auto dep94 = ExampleFactory::create("DE94");
-    //auto dep64 = ExampleFactory::create("DE64");
-    //dep5->setValue("125");
-    //dep50->setValue("esteban");
-    //dep94->setValue("10");
-    //dep64->setValue("armando estebanquito");
+    msg1.getField(2)->setValue("5511545649342263"); // PAN
+    msg1.getField(3)->setValue("123456"); // Processing code
+    msg1.getField(4)->setValue("1234"); // Amount
+    msg1.getField(6)->setValue("1234"); // Amount cardholder billing
+    msg1.getField(7)->setValue("2018-01-29T10:15:50"); // Transmission date time
+    msg1.getField(8)->setValue("17"); // Amount cardholder billing fee
+    msg1.getField(11)->setValue("341"); // System trace audit number
+    msg1.getField(12)->setValue("10:10:23"); // Time local transaction
+    msg1.getField(13)->setValue("2018-01-26"); // Date local transaction
+    msg1.getField(18)->setValue("003"); // Merchant type
+    msg1.getField(22)->setValue("001"); // POS entry mode
+    msg1.getField(41)->setValue("7"); // Terminal ID
+    msg1.getField(42)->setValue("1204"); // Merchant ID
+    msg1.getField(43)->setValue("978"); // Currency
 
-    //IsoMessage<ExampleFactory> message("0100");
-    //message.setField(5, std::move(dep5));
-    //message.setField(50, std::move(dep50));
-    //message.setField(94, std::move(dep94));
-    //message.setField(64, std::move(dep64));
-
-    //std::cout << message.write() << std::endl;
+    std::cout << msg1.write() << std::endl;
+  }
+  catch(const std::exception& e)
+  {
+    std::cerr << "Exception caught while assembling msg1: " << e.what() << std::endl;
   }
 
-  {
-    //auto dep5 = ExampleFactory::create("DE5");
-    //auto dep50 = ExampleFactory::create("DE50");
-    //auto dep94 = ExampleFactory::create("DE94");
-    //auto dep64 = ExampleFactory::create("DE64");
-    //dep5->setValue("125");
-    //dep50->setValue("esteban");
-    //dep94->setValue("10");
-    //dep64->setValue("armando estebanquito");
+  // Both messages hold pointers to the same data elements...not sure if this
+  // is desirable :S
+  const auto msg2 = msg1;
 
-    //IsoMessage<ExampleFactory> msg1("0100", BitmapType::Hex);
-    //msg1.setField(5, std::move(dep5));
-    //msg1.setField(50, std::move(dep50));
-    //msg1.setField(94, std::move(dep94));
-    //msg1.setField(64, std::move(dep64));
+  assert(msg2.write() == msg1.write());
 
-    //std::string rawMsg = msg1.write();
-    //IsoMessage<ExampleFactory> msg2("0100", BitmapType::Hex);
-    //msg2.read(rawMsg);
-    //std::cout << std::boolalpha << (msg1.write() == msg2.write()) << std::endl;
-    //auto msg3(std::move(msg2));
-    //std::cout << msg3.write() << std::endl;
-    //std::cout << (msg3.write() == msg1.write()) << std::endl;
-    //const auto msg4 = std::move(msg3);
-    //std::cout << msg4.write() << std::endl;
-    //std::cout << (msg4.write() == msg1.write()) << std::endl;
-    //message2 = message; // Compiler error
-  }
+  msg1.getField(8)->setValue("321");
+  assert(msg2.write() == msg1.write());
+
+  IsoMessage<ExampleFactory> msg3("1100");
+  msg3.read(msg1.write());
+  assert(msg3.write() == msg1.write());
 
   return 0;
 }

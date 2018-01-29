@@ -26,11 +26,26 @@ namespace isolib
       strncpy(_messageType, messageType.data(), 4);
     }
 
-    IsoMessage(const IsoMessage& other) = delete;
+    IsoMessage(const IsoMessage& other) = default;
     IsoMessage(IsoMessage&& other) = default;
 
-    IsoMessage& operator=(const IsoMessage& other) = delete;
+    IsoMessage& operator=(const IsoMessage& other) = default;
     IsoMessage& operator=(IsoMessage&& other) = default;
+
+    std::shared_ptr<DataElementBase> getField(size_t id)
+    {
+      if (id < 2 || id > 128)
+        throw std::invalid_argument("Field index must be between 2 and 128");
+
+      const auto it = _fields.find(id);
+      if (it != std::end(_fields))
+        return _fields[id];
+
+      _fields[id] = DataElementFactory::create("DE" + std::to_string(id));
+      auto normalizedPos = id > 64 ? id - 64 : id;
+      _bitmaps[id > 64] = set(normalizedPos, _bitmaps[id > 64]);
+      return _fields[id];
+    }
 
     void setField(size_t pos, std::unique_ptr<DataElementBase>&& de)
     {
@@ -43,20 +58,6 @@ namespace isolib
       auto normalizedPos = pos > 64 ? pos - 64 : pos;
       _fields[pos] = std::move(de);
       _bitmaps[pos > 64] = set(normalizedPos, _bitmaps[pos > 64]);
-    }
-
-    std::string getField(size_t pos) const
-    {
-      if (pos < 2 || pos > 128)
-      {
-        throw std::invalid_argument("Field index must be between 2 and 128");
-      }
-
-      const auto it = _fields.find(pos);
-      if (it == std::end(_fields))
-        throw std::invalid_argument("Field is not present " + std::to_string(pos));
-
-      return it->second->toString();
     }
 
     std::string write() const
@@ -84,6 +85,7 @@ namespace isolib
     // Right now it only works with at most 2 bitmaps
     void read(const std::string& in)
     {
+      // TODO clear the message
       std::istringstream iss{in};
       auto readBitmap = [&, this](size_t bitmapNum) -> void {
         if (_bitmapType == BitmapType::Binary)
@@ -119,6 +121,6 @@ namespace isolib
     char _messageType[4];
     BitmapType _bitmapType;
     std::array<uint64_t, 2> _bitmaps{{0, 0}};
-    std::map<int, std::unique_ptr<DataElementBase>> _fields;
+    std::map<int, std::shared_ptr<DataElementBase>> _fields;
   };
 }
