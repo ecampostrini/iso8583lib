@@ -1,12 +1,13 @@
 #pragma once
 
 #include <algorithm>
-#include <map>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <sstream>
 #include <cstring>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <numeric>
+#include <sstream>
+#include <string>
 
 #include <DataElement.hpp>
 #include <Utils.hpp>
@@ -14,6 +15,45 @@
 namespace isolib
 {
   enum class BitmapType : char { Binary, Hex };
+  template <size_t N>
+  class Bitmap
+  {
+  public:
+    enum class Type : char {Binary, Hex};
+  public:
+    bool get(size_t idx) const
+    {
+      if (idx < 0 || idx >= 64 * N)
+        throw std::invalid_argument("Trying to access an element out of the bounds of the bitmap"); 
+      return get(idx % 64, _bitmap[idx / 64]);
+    }
+
+    void set(size_t idx) 
+    {
+      if (idx < 0 || idx >= 64 * N)
+        throw std::invalid_argument("Trying to get an element out of the bounds of the bitmap");
+      //_bitmap[idx / 64] = set(idx % 64, _bitmap[idx / 64]);
+    }
+
+    std::string getAs(Type type) const
+    {
+      if (type != Type::Binary && type != Type::Hex)
+        throw std::invalid_argument("Invalid bitmap type: " + std::to_string(type));
+
+      // Assumes type is valid
+      auto operation = [&type](std::string& s, uint64_t val) -> std::string
+      {
+        if (type == Type::Binary)
+          return s.append(toBinary(val));
+        return s.append(toHex(val)); 
+      };
+
+      return std::accumulate(_bitmap.begin(), _bitmap.end(), std::string{}, operation);
+    }
+
+  private:
+    std::array<uint64_t, N> _bitmap{{0}};
+  };
 
   template <typename DataElementFactory>
   class IsoMessage
@@ -44,6 +84,7 @@ namespace isolib
       _fields[id] = DataElementFactory::create("DE" + std::to_string(id));
       auto normalizedPos = id > 64 ? id - 64 : id;
       _bitmaps[id > 64] = set(normalizedPos, _bitmaps[id > 64]);
+      _bitmapss.set(id);
       return _fields[id];
     }
 
@@ -85,7 +126,8 @@ namespace isolib
     // Right now it only works with at most 2 bitmaps
     void read(const std::string& in)
     {
-      // TODO clear the message
+      clear();
+
       std::istringstream iss{in};
       auto readBitmap = [&, this](size_t bitmapNum) -> void {
         if (_bitmapType == BitmapType::Binary)
@@ -117,9 +159,17 @@ namespace isolib
         createFromBitmap(1);
     }
 
+    void clear()
+    {
+      for (size_t i = 0; i < _bitmaps.size(); i++)
+        _bitmaps[i] = 0;
+      _fields.clear();
+    }
+
     private:
     char _messageType[4];
     BitmapType _bitmapType;
+    Bitmap<2> _bitmapss;
     std::array<uint64_t, 2> _bitmaps{{0, 0}};
     std::map<int, std::shared_ptr<DataElementBase>> _fields;
   };
