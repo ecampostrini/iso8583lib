@@ -99,9 +99,7 @@ namespace isolib
         return _fields[id];
 
       _fields[id] = DataElementFactory::create("DE" + std::to_string(id));
-      //auto normalizedPos = id > 64 ? id - 64 : id;
-      //_bitmaps[id > 64] = set(normalizedPos, _bitmaps[id > 64]);
-      _bitmapss.set(id);
+      _bitmap.set(id);
       return _fields[id];
     }
 
@@ -110,30 +108,15 @@ namespace isolib
       if (pos < 2 || pos > 128)
         throw std::invalid_argument("Field index must be between 2 and 128");
 
-      //if (pos > 64 && !_bitmaps[1])
-        //_bitmaps[0] = set(1, _bitmaps[0]);
-
       _fields[pos] = std::move(de);
-      //auto normalizedPos = pos > 64 ? pos - 64 : pos;
-      //_bitmaps[pos > 64] = set(normalizedPos, _bitmaps[pos > 64]);
-      _bitmapss.set(pos);
+      _bitmap.set(pos);
     }
 
     std::string write() const
     {
       std::ostringstream oss;
-      //auto writeBitmap = [&, this](int pos) -> void {
-        //if (_bitmapType == BitmapType::Binary)
-          //oss << toBinary(_bitmaps[pos]);
-        //else
-          //oss << toHex(_bitmaps[pos]);
-      //};
-
       oss.write(_messageType, 4);
-      //writeBitmap(0);
-      //if (_bitmaps[1])
-        //writeBitmap(1);
-      oss << _bitmapss.getAs(_bitmapType);
+      oss << _bitmap.getAs(_bitmapType);
       for (const auto& kv : _fields)
       {
         oss << kv.second->toString();
@@ -148,38 +131,11 @@ namespace isolib
       clear();
 
       std::istringstream iss{in};
-      //auto readBitmap = [&, this](size_t bitmapNum) -> void {
-        //if (_bitmapType == BitmapType::Binary)
-          //_bitmaps[bitmapNum] = fromBinary<uint64_t>(readFixedField(iss, 8));
-        //else
-          //_bitmaps[bitmapNum] = fromHex<uint64_t>(readFixedField(iss, 16));
-      //};
-
-      //auto createFromBitmap = [&, this](size_t bitmapNum) -> void {
-        //auto offset = bitmapNum ? 64 : 0;
-        //size_t i = bitmapNum ? 1 : 2;
-
-        //for (; i <= 64; i++)
-        //{
-          //if (!get(i, _bitmaps[bitmapNum]))
-            //continue;
-          //auto debPtr = DataElementFactory::create("DE" + std::to_string(i + offset));
-          //debPtr->parse(iss);
-          //_fields[i + offset] = std::move(debPtr);
-        //}
-      //};
-
       strncpy(_messageType, readFixedField(iss, 4).data(), 4);
-      //readBitmap(0);
-      //if (get(1, _bitmaps[0]))
-        //readBitmap(1);
-      //createFromBitmap(0);
-      //if (get(1, _bitmaps[0]))
-        //createFromBitmap(1);
-      _bitmapss.readFrom(iss, _bitmapType);
+      _bitmap.readFrom(iss, _bitmapType);
       for (size_t i = 2; i < 128; i++)
       {
-        if (!_bitmapss.get(i))
+        if (!_bitmap.get(i))
           continue;
         auto debPtr = DataElementFactory::create("DE" + std::to_string(i));
         debPtr->parse(iss);
@@ -189,17 +145,14 @@ namespace isolib
 
     void clear()
     {
-      //for (size_t i = 0; i < _bitmaps.size(); i++)
-        //_bitmaps[i] = 0;
-      _bitmapss.clear();
+      _bitmap.clear();
       _fields.clear();
     }
 
     private:
     char _messageType[4];
     BitmapType _bitmapType;
-    Bitmap<2> _bitmapss;
-    //std::array<uint64_t, 2> _bitmaps{{0, 0}};
+    Bitmap<2> _bitmap;
     std::map<int, std::shared_ptr<DataElementBase>> _fields;
   };
 }
