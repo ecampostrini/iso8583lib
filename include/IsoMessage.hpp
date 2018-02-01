@@ -15,6 +15,7 @@
 namespace isolib
 {
   enum class BitmapType : char { Binary, Hex };
+
   template <size_t N>
   class Bitmap
   {
@@ -50,6 +51,8 @@ namespace isolib
     // Does not validate the Type
     void readFrom(std::istringstream& iss, BitmapType type)
     {
+      clear();
+
       const auto& convFunc = type == BitmapType::Binary ? isolib::fromBinary<uint64_t> : isolib::fromHex<uint64_t>;
       auto length = type == BitmapType::Binary ? 8 : 16;
 
@@ -64,8 +67,7 @@ namespace isolib
 
     auto clear()
     {
-      for (auto& b : _bitmap)
-        b = 0;
+      _bitmap.fill(0);
     }
 
   private:
@@ -85,7 +87,6 @@ namespace isolib
 
     IsoMessage(const IsoMessage& other) = default;
     IsoMessage(IsoMessage&& other) = default;
-
     IsoMessage& operator=(const IsoMessage& other) = default;
     IsoMessage& operator=(IsoMessage&& other) = default;
 
@@ -121,7 +122,6 @@ namespace isolib
       {
         oss << kv.second->toString();
       }
-
       return oss.str();
     }
 
