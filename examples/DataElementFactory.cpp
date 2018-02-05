@@ -110,6 +110,13 @@ namespace
     ret->setName("Currency");
     return ret;
   }
+
+  std::unique_ptr<DataElement<Numeric>> makeDe88()
+  {
+    auto ret = std::make_unique<DataElement<Numeric>>(LengthType::Fixed, 10);
+    ret->setName("DebitsAmount");
+    return ret;
+  }
 }
 
 const CreationMap ExampleFactory::creationMap_ = CreationMap{
@@ -127,6 +134,7 @@ const CreationMap ExampleFactory::creationMap_ = CreationMap{
   {"DE41", makeDe41},
   {"DE42", makeDe42},
   {"DE43", makeDe43},
+  {"DE88", makeDe88},
 };
 
 std::unique_ptr<DataElementBase> ExampleFactory::create(const std::string& id)

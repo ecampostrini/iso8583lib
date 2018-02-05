@@ -23,17 +23,26 @@ namespace isolib
     bool get(size_t idx) const
     {
       if (idx < 0 || idx >= 64 * N)
-        throw std::invalid_argument("Trying to access an element out of the bounds of the bitmap"); 
+        throw std::invalid_argument("Trying to access an element out of the bounds of the bitmap");
       auto pos = idx % 64 == 0 ? 64 : idx % 64;
       return isolib::get(pos, _bitmap[idx / 64]);
     }
 
-    void set(size_t idx) 
+    void set(size_t idx)
     {
-      if (idx < 0 || idx >= 64 * N)
+      if (idx <= 0 || idx > 64 * N)
         throw std::invalid_argument("Trying to set an element out of the bounds of the bitmap");
       auto pos = idx % 64 == 0 ? 64 : idx % 64;
-      _bitmap[idx / 64] = isolib::set(pos, _bitmap[idx / 64]);
+      _bitmap[(idx + 1) / 64] = isolib::set(pos, _bitmap[(idx + 1) / 64]);
+    }
+
+    void clear(size_t idx)
+    {
+      if (idx <= 0 || idx > 64 * N)
+        throw std::invalid_argument("Trying to clear an element out of the bounds of the bitmap");
+      auto pos = idx % 64 == 0 ? 64 : idx % 64;
+      // TODO implement clear
+      //_bitmap[(idx + 1) / 64] = isolib::clear(pos, _bitmap[(idx + 1) / 64]);
     }
 
     // Does not validate the Type
@@ -65,22 +74,28 @@ namespace isolib
       }
     }
 
-    auto clear()
+    void clear()
     {
       _bitmap.fill(0);
+    }
+
+    size_t size() const
+    {
+      return 64 * N;
     }
 
   private:
     std::array<uint64_t, N> _bitmap{{0}};
   };
 
-  template <typename DataElementFactory>
+  template <typename DataElementFactory, size_t BitmapLength = 2>
   class IsoMessage
   {
     public:
     IsoMessage(const std::string& messageType, BitmapType binBitmap = BitmapType::Hex) :
       _bitmapType(binBitmap)
     {
+      static_assert(BitmapLength >= 1, "The bitmap length must be at least 1");
       validateMessageType(messageType);
       strncpy(_messageType, messageType.data(), 4);
     }
@@ -92,8 +107,9 @@ namespace isolib
 
     std::shared_ptr<DataElementBase> getField(size_t id)
     {
-      if (id < 2 || id > 128)
-        throw std::invalid_argument("Field index must be between 2 and 128");
+      if (id < BitmapLength || id > _bitmap.size())
+        throw std::invalid_argument("Field index must be between " + std::to_string(BitmapLength) +
+              " and " + std::to_string(_bitmap.size()));
 
       const auto it = _fields.find(id);
       if (it != std::end(_fields))
@@ -101,16 +117,25 @@ namespace isolib
 
       _fields[id] = DataElementFactory::create("DE" + std::to_string(id));
       _bitmap.set(id);
+      if (id > 64)
+        // Indicate the nth bitmap as present
+        _bitmap.set((id + 1) / 64);
       return _fields[id];
     }
 
     void setField(size_t pos, std::unique_ptr<DataElementBase>&& de)
     {
-      if (pos < 2 || pos > 128)
-        throw std::invalid_argument("Field index must be between 2 and 128");
+      if (pos < BitmapLength || pos > _bitmap.size())
+      {
+        throw std::invalid_argument("Field index must be between " +
+            std::to_string(_bitmap.minPos()) + " and " + std::to_string(_bitmap.maxPos()));
+      }
 
       _fields[pos] = std::move(de);
       _bitmap.set(pos);
+      if (pos > 64)
+        // Indicate the nth bitmap as present
+        _bitmap.set((pos + 1) / 64);
     }
 
     std::string write() const
@@ -133,7 +158,7 @@ namespace isolib
       std::istringstream iss{in};
       strncpy(_messageType, readFixedField(iss, 4).data(), 4);
       _bitmap.readFrom(iss, _bitmapType);
-      for (size_t i = 2; i < 128; i++)
+      for (size_t i = BitmapLength; i < _bitmap.size(); i++)
       {
         if (!_bitmap.get(i))
           continue;
@@ -152,7 +177,7 @@ namespace isolib
     private:
     char _messageType[4];
     BitmapType _bitmapType;
-    Bitmap<2> _bitmap;
+    Bitmap<BitmapLength> _bitmap;
     std::map<int, std::shared_ptr<DataElementBase>> _fields;
   };
 }

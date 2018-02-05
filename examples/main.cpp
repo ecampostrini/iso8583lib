@@ -25,6 +25,7 @@ int main()
     msg1.getField(41)->setValue("7"); // Terminal ID
     msg1.getField(42)->setValue("1204"); // Merchant ID
     msg1.getField(43)->setValue("978"); // Currency
+    msg1.getField(88)->setValue("12345"); // Debits amount
 
     std::cout << msg1.write() << std::endl;
   }
