@@ -41,8 +41,7 @@ namespace isolib
       if (idx <= 0 || idx > 64 * N)
         throw std::invalid_argument("Trying to clear an element out of the bounds of the bitmap");
       auto pos = idx % 64 == 0 ? 64 : idx % 64;
-      // TODO implement clear
-      //_bitmap[(idx + 1) / 64] = isolib::clear(pos, _bitmap[(idx + 1) / 64]);
+      _bitmap[(idx + 1) / 64] = isolib::clear(pos, _bitmap[(idx + 1) / 64]);
     }
 
     // Does not validate the Type

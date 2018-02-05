@@ -133,7 +133,7 @@ TEST_CASE("Test bitmap utility functions", "[bitmap_utility_function_test]")
     }
   }
 
-  SECTION("Test set/get}")
+  SECTION("Test set/get/clear}")
   {
     {
       uint8_t i8{0};
@@ -165,6 +165,26 @@ TEST_CASE("Test bitmap utility functions", "[bitmap_utility_function_test]")
       REQUIRE(toHex(i64) == std::string("80000000C0000000"));
       i64 = set(64, i64);
       REQUIRE(toHex(i64) == std::string("80000000C0000001"));
+    }
+    {
+      uint8_t i8{0xFF};
+      REQUIRE(clear(1, i8) == 0x7F);
+      REQUIRE(clear(4, i8) == 0xEF);
+      REQUIRE(clear(8, i8) == 0xFE);
+
+      uint16_t i16{0xFFFF};
+      REQUIRE(clear(1, i16) == 0X7FFF);
+      REQUIRE(clear(16, i16) == 0xFFFE);
+      REQUIRE(clear(8, i16) == 0xFEFF);
+      REQUIRE(clear(9, i16) == 0xFF7F);
+
+      uint32_t i32{0xFFFFFFFF};
+      REQUIRE(clear(1, i32) == 0x7FFFFFFF);
+      REQUIRE(clear(32, i32) == 0xFFFFFFFE);
+
+      uint64_t i64{0xFFFFFFFFFFFFFFFF};
+      REQUIRE(clear(1, i64) == 0x7FFFFFFFFFFFFFFF);
+      REQUIRE(clear(64, i64) == 0xFFFFFFFFFFFFFFFE);
     }
   }
 }

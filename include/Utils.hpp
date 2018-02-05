@@ -65,6 +65,19 @@ namespace isolib
   }
 
   template <typename T>
+  T clear(size_t i, T target)
+  {
+    constexpr auto sizeInBits = sizeof(T) * 8;
+
+    static_assert(std::is_integral<T>::value, "The target has to be integral");
+    assert(i <= sizeInBits && "The index cannot be bigger than the size in bits of the target");
+    assert(i > 0 && "The minimum allowed value for the index is 1");
+
+    uint64_t mask = ~(1ULL << (sizeInBits - i));
+    return target & static_cast<T>(mask);
+  }
+
+  template <typename T>
   bool get(size_t i, T target)
   {
     constexpr auto sizeInBits = sizeof(T) * 8;
