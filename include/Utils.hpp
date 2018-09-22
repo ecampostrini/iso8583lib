@@ -118,6 +118,10 @@ namespace isolib
     for (size_t i = 0; i < numChars; i++)
     {
       result[currentChar--] = target & 0xFF;
+
+      // To avoid compiler warning in case the target type is 1 byte
+      if (numChars == 1) break;
+
       target >>= 8;
     }
 

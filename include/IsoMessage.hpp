@@ -48,7 +48,7 @@ namespace isolib
     std::string getAs(BitmapType type) const
     {
       const auto& convFunc = type == BitmapType::Binary ? isolib::toBinary<uint64_t> : isolib::toHex<uint64_t>;
-      auto operation = [&type, &convFunc](std::string& s, uint64_t val) -> std::string
+      auto operation = [&convFunc](std::string& s, uint64_t val) -> std::string
       {
         if (!val) return s;
         return s.append(convFunc(val));
